@@ -20,9 +20,11 @@
 
 //SL includes -- bad
 #if HAVE_SPRINGLOBBY
-    #include "settings.h"
-    #include "utils/conversion.h"
+	#warning FIXME: SpringLobby includes are used!
+	#include "settings.h"
+	#include "utils/conversion.h"
 #else
+#include <lslutils/config.h>
 #include <lslutils/mock_settings.h>
 #endif
 

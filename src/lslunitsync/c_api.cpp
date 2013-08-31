@@ -298,7 +298,7 @@ std::map<std::string, std::string> UnitsyncLib::GetSpringVersionList(const std::
 
 #ifdef __WXMSW__
 			boost::filesystem::path us_path( path );
-            boost::filesystem::current_path( us_path.parent_path() );
+			boost::filesystem::current_path( us_path.parent_path() );
 #endif
 			boost::extensions::shared_library temphandle( path );
 			if( !temphandle.open())

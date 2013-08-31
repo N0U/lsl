@@ -1,8 +1,8 @@
 //SpringUnitSync& usync();
 
-#include <unitsync++/c_api.h>
-#include <unitsync++/image.h>
-#include <unitsync++/unitsync.h>
+#include <lslunitsync/c_api.h>
+#include <lslunitsync/image.h>
+#include <lslunitsync/unitsync.h>
 #include <boost/format.hpp>
 #include <cmath>
 #include <iostream>

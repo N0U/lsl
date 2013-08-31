@@ -150,7 +150,7 @@ private:
 	void OnJoinChannelFailed(const std::string &channel, const std::string &reason);
 	void OnChannelJoin(const std::string &name, const std::string &who);
 	void OnChannelJoinUserList(const std::string &channel, const std::string &usernames);
-	void OnJoinedBattle(const int battleid, const std::string msg);
+	void OnJoinedBattle(const int battleid, const std::string& msg);
 	void OnGetHandle();
 	void OnLogin(const std::string& msg);
 	void OnUserJoinedChannel(const std::string &channel_name, const std::string &who);

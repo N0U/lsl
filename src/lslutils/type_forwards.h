@@ -23,7 +23,7 @@ namespace LSL {
 namespace Battle {
 	class IBattle;
 	class Battle;
-    struct BattleOptions;
+	struct BattleOptions;
 }
 
 template <class T, bool TDestroy>

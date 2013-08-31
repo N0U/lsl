@@ -152,8 +152,8 @@ lslColor IBattle::GetFreeColor( const ConstCommonUserPtr user) const
 
 	int inc = 1;
 	while ( true ) {
-        ColorVec fixcolorspalette = GetFixColorsPalette( m_teams_sizes.size() + inc++ );
-        ColorVec::iterator fixcolorspalette_new_end //= std::unique( fixcolorspalette.begin(), fixcolorspalette.end(), AreColorsSimilarProxy( 20 ) );
+		ColorVec fixcolorspalette = GetFixColorsPalette( m_teams_sizes.size() + inc++ );
+		ColorVec::iterator fixcolorspalette_new_end; //= std::unique( fixcolorspalette.begin(), fixcolorspalette.end(), AreColorsSimilarProxy( 20 ) );
 		fixcolorspalette_new_end = std::remove_if( fixcolorspalette.begin(), fixcolorspalette.end(), DismissColor( current_used_colors ) );
 		if ( fixcolorspalette_new_end != fixcolorspalette.begin() )
 			return (*fixcolorspalette.begin());

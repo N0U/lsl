@@ -21,6 +21,7 @@
 #include <lslutils/debug.h>
 #include <lslutils/conversion.h>
 #include <lslutils/config.h>
+#include <lslutils/mock_settings.h>
 #include <lsl/container/userlist.h>
 #include <lsl/battle/battle.h>
 #include <lsl/battle/singleplayer.h>

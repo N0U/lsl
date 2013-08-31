@@ -80,10 +80,12 @@ void WorkerThread::DoWork( WorkItem* item, int priority, bool toBeDeleted )
 
 void WorkerThread::Wait()
 {
-    m_workItems.Cancel();
-    if ( m_thread )
-        m_thread->detach();
-    delete m_thread;
+	m_workItems.Cancel();
+	if ( m_thread != NULL ) {
+		m_thread->detach();
+	}
+	delete m_thread;
+	m_thread = NULL;
 }
 
 WorkItemQueue::WorkItemQueue()

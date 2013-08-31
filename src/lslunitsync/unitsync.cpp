@@ -39,8 +39,6 @@ Unitsync::Unitsync():
 
 Unitsync::~Unitsync()
 {
-	if ( m_cache_thread )
-		m_cache_thread->Wait();
 	delete m_cache_thread;
 }
 
@@ -88,7 +86,9 @@ bool Unitsync::FastLoadUnitSyncLib( const std::string& unitsyncloc )
 bool Unitsync::FastLoadUnitSyncLibInit()
 {
 	LOCK_UNITSYNC;
-	m_cache_thread = new WorkerThread();
+	if (m_cache_thread == NULL) {
+		m_cache_thread = new WorkerThread();
+	}
 	if ( IsLoaded() ) {
         m_cache_path = Util::config().GetCachePath().string();
 		PopulateArchiveList();
@@ -99,7 +99,9 @@ bool Unitsync::FastLoadUnitSyncLibInit()
 bool Unitsync::LoadUnitSyncLib( const std::string& unitsyncloc )
 {
 	LOCK_UNITSYNC;
-	m_cache_thread = new WorkerThread();
+	if (m_cache_thread == NULL) {
+		m_cache_thread = new WorkerThread();
+	}
 	bool ret = _LoadUnitSyncLib( unitsyncloc );
 	if (ret)
 	{
@@ -146,6 +148,7 @@ void Unitsync::PopulateArchiveList()
 			m_maps_list[name] = hash;
 			if ( !unchainedhash.empty() ) m_maps_unchained_hash[name] = unchainedhash;
 			if ( !archivename.empty() ) m_maps_archive_name[name] = archivename;
+			assert(!name.empty());
 			m_map_array.push_back( name );
 		} catch (...)
 		{

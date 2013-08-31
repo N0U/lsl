@@ -15,8 +15,7 @@ public:
     std::string GetCurrentUsedSpringConfigFilePath() const { return std::string(); }
     std::vector<std::string> GetPresetList() const { return std::vector<std::string>(); }
     std::map<std::string,std::string> GetHostingPreset(std::string, int) const { return std::map<std::string,std::string>(); }
-    template <class T>
-    void SetHostingPreset(std::string, int, T) {}
+    void SetHostingPreset(std::string, int, std::map<std::basic_string<char>, std::basic_string<char> >) {}
     void DeletePreset(std::string){}
     void SaveSettings() {}
 };

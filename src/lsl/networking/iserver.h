@@ -101,7 +101,7 @@ class Server : public boost::enable_shared_from_this<Server>
     std::string GetRequiredSpring() const;
     void SetRequiredSpring( const std::string& version );
 
-    void OnSocketConnected(bool connection_ok, const std::string msg);
+    void OnSocketConnected(bool connection_ok, const std::string& msg);
 
     const UserPtr GetMe() const;
 

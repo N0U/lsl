@@ -57,13 +57,9 @@ LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
 #----------------------------------------------------------------------------------------------------
 # Options, that can be changed be the User in order to customise libSpringLobby
 #----------------------------------------------------------------------------------------------------
-SET( BUILD_SHARED_LIBS
-	0 CACHE BOOL
-	"Chooses whether to link dynamic or static libraries. Recommend keeping this activated unless you know what you're doing." )
+OPTION(BUILD_SHARED_LIBS "Chooses whether to link dynamic or static libraries. Recommend keeping this activated unless you know what you're doing." ON)
 
-SET( BUILD_TESTS
-	0 CACHE BOOL
-	"build example and test binaries" )
+OPTION(BUILD_TESTS "build example and test binaries" OFF)
 	
 SET( LIBSPRINGLOBBY_REV
 	"${LIBSPRINGLOBBY_REV}" CACHE STRING
@@ -123,6 +119,6 @@ ENDIF (WIN32)
 
 add_subdirectory( src )
 add_subdirectory( doc )
-if (${BUILD_TESTS} )
+if (${BUILD_TESTS})
 	add_subdirectory( test )
 endif()
