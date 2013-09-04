@@ -62,12 +62,12 @@ bool WorkItemQueue::Remove( WorkItem* item )
 void WorkItemQueue::Cancel()
 {
     m_dying = true;
-    m_cond.notify_all();
+    m_cond.notify_all(); // wake up worker thread
 }
 
 
 WorkerThread::WorkerThread()
-    :m_thread(new boost::thread(&WorkItemQueue::Process, &m_workItems))
+    :m_thread(new boost::thread(&WorkItemQueue::Process, &m_workeritemqueue))
 {}
 
 void WorkerThread::DoWork( WorkItem* item, int priority, bool toBeDeleted )
@@ -75,17 +75,22 @@ void WorkerThread::DoWork( WorkItem* item, int priority, bool toBeDeleted )
     LslDebug( "scheduling WorkItem %p, prio = %d", item, priority );
 	item->m_priority = priority;
 	item->m_toBeDeleted = toBeDeleted;
-	m_workItems.Push( item );
+	m_workeritemqueue.Push( item );
 }
 
 void WorkerThread::Wait()
 {
-	m_workItems.Cancel();
+	m_workeritemqueue.Cancel(); //don't start new tasks / wake up worker thread
 	if ( m_thread != NULL ) {
-		m_thread->detach();
+		m_thread->join(); //now wait for thread to exit
 	}
 	delete m_thread;
 	m_thread = NULL;
+}
+
+WorkerThread::~WorkerThread()
+{
+	Wait();
 }
 
 WorkItemQueue::WorkItemQueue()
@@ -103,7 +108,7 @@ void WorkItemQueue::Process()
     while (!m_dying) {
         WorkItem* item = NULL;
         boost::unique_lock<boost::mutex> lock(m_mutex);
-        while ( (item = Pop()) ) {
+        while ( (!m_dying) && (item = Pop()) ) {
             try {
                 LslDebug( "running WorkItem %p, prio = %d", item, item->m_priority );
                 item->Run();
@@ -121,8 +126,9 @@ void WorkItemQueue::Process()
         while ( ( item = Pop() ) != NULL ) {
             CleanupWorkItem( item );
         }
-        //wait for the next Push
-        m_cond.wait( lock );
+		if (!m_dying)
+			//wait for the next Push
+			m_cond.wait( lock );
     }
 }
 

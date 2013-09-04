@@ -11,6 +11,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/foreach.hpp>
 #include <boost/format.hpp>
+#include <boost/filesystem.hpp>
 #include <iterator>
 
 #include "c_api.h"
@@ -55,47 +56,6 @@ bool CompareStringNoCase(const std::string& first, const std::string& second)
 	}
 }
 
-bool Unitsync::FastLoadUnitSyncLib( const std::string& unitsyncloc )
-{
-	LOCK_UNITSYNC;
-	if (!_LoadUnitSyncLib( unitsyncloc ))
-		return false;
-
-	m_mods_list.clear();
-	m_mod_array.clear();
-	m_unsorted_mod_array.clear();
-	m_mods_unchained_hash.clear();
-
-	const int numMods = susynclib().GetPrimaryModCount();
-	std::string name;
-	for ( int i = 0; i < numMods; i++ )
-	{
-		try
-		{
-			name = susynclib().GetPrimaryModName( i );
-			m_mods_list[name] = "fakehash";
-			m_mod_array.push_back( name );
-			m_shortname_to_name_map[
-					std::make_pair(susynclib().GetPrimaryModShortName( i ),
-								   susynclib().GetPrimaryModVersion( i )) ] = name;
-		} catch (...) { continue; }
-	}
-	m_unsorted_mod_array = m_mod_array;
-	return true;
-}
-bool Unitsync::FastLoadUnitSyncLibInit()
-{
-	LOCK_UNITSYNC;
-	if (m_cache_thread == NULL) {
-		m_cache_thread = new WorkerThread();
-	}
-	if ( IsLoaded() ) {
-        m_cache_path = Util::config().GetCachePath().string();
-		PopulateArchiveList();
-	}
-	return true;
-}
-
 bool Unitsync::LoadUnitSyncLib( const std::string& unitsyncloc )
 {
 	LOCK_UNITSYNC;
@@ -108,7 +68,7 @@ bool Unitsync::LoadUnitSyncLib( const std::string& unitsyncloc )
     m_cache_path = LSL::Util::config().GetCachePath().string();
 		PopulateArchiveList();
     //this bit will be used to notify GUI listeners that they may need to update after usync reload
-//    GetGlobalEventSender(GlobalEvents::OnUnitsyncReloaded).SendEvent( 0 );
+//    SendGlobalEvent(GlobalEvents::OnUnitsyncReloaded).SendEvent( 0 );
 	}
 	return ret;
 }
@@ -480,7 +440,7 @@ GameOptions Unitsync::GetSkirmishOptions( const std::string& modname, const std:
 
 StringVector Unitsync::GetModDeps( const std::string& modname ) const
 {
-    StringVector ret;
+	StringVector ret;
 	try
 	{
 		ret = susynclib().GetModDeps( Util::IndexInSequence( m_unsorted_mod_array, modname ) );
@@ -491,14 +451,12 @@ StringVector Unitsync::GetModDeps( const std::string& modname ) const
 
 StringVector Unitsync::GetSides( const std::string& modname )
 {
-    StringVector ret;
-	if ( ! m_sides_cache.TryGet( modname, ret ) ) {
-		try
-		{
+	StringVector ret;
+	if (( ! m_sides_cache.TryGet( modname, ret) ) && (ModExists(modname))){
+		try {
 			ret = susynclib().GetSides( modname );
 			m_sides_cache.Add( modname, ret );
-		}
-		catch( Exceptions::unitsync& u ) {}
+		} catch( Exceptions::unitsync& u ) {}
 	}
 	return ret;
 }
@@ -609,12 +567,8 @@ int Unitsync::GetNumUnits( const std::string& modname ) const
 
 StringVector Unitsync::GetUnitsList( const std::string& modname )
 {
-	StringVector cache;
-	try
-	{
-		cache = GetCacheFile( GetFileCachePath( modname, "", true ) + ".units" );
-	} catch(...)
-	{
+	StringVector cache = GetCacheFile( GetFileCachePath( modname, "", true ) + ".units" );
+	if (cache.empty()) {
 		susynclib().SetCurrentMod( modname );
 		while ( susynclib().ProcessUnitsNoChecksum() > 0 ) {}
 		const int unitcount = susynclib().GetUnitCount();
@@ -692,19 +646,17 @@ UnitsyncImage Unitsync::_GetMapImage( const std::string& mapname, const std::str
 		return img;
 
 	std::string originalsizepath = GetFileCachePath( mapname, m_maps_unchained_hash[mapname], false ) + imagename;
-	try
-	{
+	if (FileExists(originalsizepath)) {
 		img = UnitsyncImage( originalsizepath );
 	}
-	catch (...)
-	{
-		try
-		{
-			img = (susynclib().*loadMethod)( mapname );
-			img.Save( originalsizepath );
-		}
-		catch (...)
-		{
+
+	if (img.GetHeight() < 1 || img.GetWidth() < 1) { //image seems invalid, recreate
+		try {
+		//convert and save
+		img = (susynclib().*loadMethod)( mapname );
+		img.Save( originalsizepath );
+		} catch (...) { //we failed horrible, use dummy image
+			//dummy image
 			img = UnitsyncImage( 1, 1 );
 		}
 	}
@@ -726,16 +678,14 @@ UnitsyncImage Unitsync::_GetScaledMapImage( const std::string& mapname, Unitsync
 MapInfo Unitsync::_GetMapInfoEx( const std::string& mapname )
 {
 	MapInfo info;
+	info.width = 1;
+	info.height = 1;
 	if ( m_mapinfo_cache.TryGet( mapname, info ) )
 		return info;
 
-    StringVector cache;
-	try {
-		try
-		{
-			cache = GetCacheFile( GetFileCachePath( mapname, m_maps_unchained_hash[mapname], false ) + ".infoex" );
-
-			ASSERT_EXCEPTION( cache.size() >= 11, "not enough lines found in cache info ex");
+	StringVector cache;
+	cache = GetCacheFile( GetFileCachePath( mapname, m_maps_unchained_hash[mapname], false ) + ".infoex" );
+	if (cache.size()>=11) {
 			info.author = cache[0];
 			info.tidalStrength =  Util::FromString<long>( cache[1] );
 			info.gravity = Util::FromString<long>( cache[2] );
@@ -745,7 +695,7 @@ MapInfo Unitsync::_GetMapInfoEx( const std::string& mapname )
 			info.maxWind = Util::FromString<long>( cache[6] );
 			info.width = Util::FromString<long>( cache[7] );
 			info.height = Util::FromString<long>( cache[8] );
-            const StringVector posinfo = Util::StringTokenize( cache[9], " ");
+			const StringVector posinfo = Util::StringTokenize( cache[9], " ");
 			BOOST_FOREACH( const std::string pos, posinfo )
 			{
 				StartPos position;
@@ -756,9 +706,7 @@ MapInfo Unitsync::_GetMapInfoEx( const std::string& mapname )
 			const unsigned int LineCount = cache.size();
 			for ( unsigned int i = 10; i < LineCount; i++ )
 				info.description += cache[i] + "\n";
-		}
-		catch (...)
-		{
+	} else {
 			const int index = Util::IndexInSequence( m_unsorted_map_array, mapname);
 			ASSERT_EXCEPTION(index>=0, "Map not found");
 
@@ -786,11 +734,6 @@ MapInfo Unitsync::_GetMapInfoEx( const std::string& mapname )
 				cache.push_back( descrtoken );
 			}
 			SetCacheFile( GetFileCachePath( mapname, m_maps_unchained_hash[mapname], false ) + ".infoex", cache );
-		}
-	}
-	catch ( ... ) {
-		info.width = 1;
-		info.height = 1;
 	}
 
 	m_mapinfo_cache.Add( mapname, info );
@@ -845,7 +788,8 @@ StringVector Unitsync::GetCacheFile( const std::string& path ) const
 {
 	StringVector ret;
 	std::ifstream file( path.c_str() );
-	ASSERT_EXCEPTION( file.good() , (boost::format( "cache file( %s ) not found" ) % path).str() );
+	if (!file.good())
+		return ret;
 	std::string line;
 	while(std::getline(file,line))
 	{
@@ -868,13 +812,33 @@ void Unitsync::SetCacheFile( const std::string& path, const StringVector& data )
 
 StringVector  Unitsync::GetPlaybackList( bool ReplayType ) const
 {
-    StringVector ret;
+	StringVector ret;
 	if ( !IsLoaded() ) return ret;
-
-	if ( ReplayType )
-		return susynclib().FindFilesVFS( "demos/*.sdf" );
-	else
-		return susynclib().FindFilesVFS( "Saves/*.ssf" );
+	std::string type;
+	std::string subpath;
+	if ( ReplayType ) {
+		type = ".sdf";
+		subpath = "demos";
+	} else {
+		type = ".ssf";
+		subpath = "Saves";
+	}
+	const int count = susynclib().GetSpringDataDirCount();
+	for(int i=0; i<count; i++) {
+		const std::string dir = susynclib().GetSpringDataDirByIndex(i) + subpath;
+		if (!boost::filesystem::is_directory(dir))
+			continue;
+		boost::filesystem::directory_iterator enditer;
+		for( boost::filesystem::directory_iterator dir_iter(dir) ; dir_iter != enditer; ++dir_iter) {
+			if (!boost::filesystem::is_regular_file(dir_iter->status()))
+				continue;
+			const std::string filename(dir_iter->path().string());
+			if (filename.substr(filename.length()-4) != type) // compare file ending
+				continue;
+			ret.push_back(filename);
+		}
+	}
+	return ret;
 }
 
 bool Unitsync::FileExists( const std::string& name ) const

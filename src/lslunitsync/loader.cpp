@@ -4,106 +4,109 @@
 #include <string>
 
 #include "c_api.h"
-#include "function_ptr.h"
+#include "sharedlib.h"
 
 namespace LSL {
 
+#define BIND(type, name,var) \
+	s->var = (type) GetLibFuncPtr(s->m_libhandle, name);
+
 void UnitsyncFunctionLoader::LuaParser(UnitsyncLib *s)
 {
-    GetLibFuncPtr( s->m_libhandle, "lpClose",                   s->m_parser_close );
-    GetLibFuncPtr( s->m_libhandle, "lpOpenFile",				s->m_parser_open_file );
-    GetLibFuncPtr( s->m_libhandle, "lpOpenSource",				s->m_parser_open_source );
-    GetLibFuncPtr( s->m_libhandle, "lpExecute",					s->m_parser_execute );
-    GetLibFuncPtr( s->m_libhandle, "lpErrorLog",				s->m_parser_error_log );
+    BIND(lpClosePtr, "lpClose", m_parser_close );
+    BIND(lpOpenFilePtr, "lpOpenFile", m_parser_open_file );
+    BIND(lpOpenSourcePtr, "lpOpenSource", m_parser_open_source );
+    BIND(lpExecutePtr, "lpExecute", m_parser_execute );
+    BIND(lpErrorLogPtr, "lpErrorLog", m_parser_error_log );
 
-    GetLibFuncPtr( s->m_libhandle, "lpAddTableInt",				s->m_parser_add_table_int );
-    GetLibFuncPtr( s->m_libhandle, "lpAddTableStr",				s->m_parser_add_table_string );
-    GetLibFuncPtr( s->m_libhandle, "lpEndTable",				s->m_parser_end_table );
-    GetLibFuncPtr( s->m_libhandle, "lpAddIntKeyIntVal",			s->m_parser_add_int_key_int_value );
-    GetLibFuncPtr( s->m_libhandle, "lpAddStrKeyIntVal",			s->m_parser_add_string_key_int_value );
-    GetLibFuncPtr( s->m_libhandle, "lpAddIntKeyBoolVal",		s->m_parser_add_int_key_bool_value );
-    GetLibFuncPtr( s->m_libhandle, "lpAddStrKeyBoolVal",		s->m_parser_add_string_key_bool_value );
-    GetLibFuncPtr( s->m_libhandle, "lpAddIntKeyFloatVal",		s->m_parser_add_int_key_float_value );
-    GetLibFuncPtr( s->m_libhandle, "lpAddStrKeyFloatVal",		s->m_parser_add_string_key_float_value );
-    GetLibFuncPtr( s->m_libhandle, "lpAddIntKeyStrVal",			s->m_parser_add_int_key_string_value );
-    GetLibFuncPtr( s->m_libhandle, "lpAddStrKeyStrVal",			s->m_parser_add_string_key_string_value );
+    BIND(lpAddTableIntPtr, "lpAddTableInt", m_parser_add_table_int );
+    BIND(lpAddTableStrPtr, "lpAddTableStr", m_parser_add_table_string );
+    BIND(lpEndTablePtr, "lpEndTable", m_parser_end_table );
+    BIND(lpAddIntKeyIntValPtr, "lpAddIntKeyIntVal", m_parser_add_int_key_int_value );
+    BIND(lpAddStrKeyIntValPtr, "lpAddStrKeyIntVal", m_parser_add_string_key_int_value );
+    BIND(lpAddIntKeyBoolValPtr, "lpAddIntKeyBoolVal", m_parser_add_int_key_bool_value );
+    BIND(lpAddStrKeyBoolValPtr, "lpAddStrKeyBoolVal", m_parser_add_string_key_bool_value );
+    BIND(lpAddIntKeyFloatValPtr, "lpAddIntKeyFloatVal", m_parser_add_int_key_float_value );
+    BIND(lpAddStrKeyFloatValPtr, "lpAddStrKeyFloatVal", m_parser_add_string_key_float_value );
+    BIND(lpAddIntKeyStrValPtr, "lpAddIntKeyStrVal", m_parser_add_int_key_string_value );
+    BIND(lpAddStrKeyStrValPtr, "lpAddStrKeyStrVal", m_parser_add_string_key_string_value );
 
-    GetLibFuncPtr( s->m_libhandle, "lpRootTable",				s->m_parser_root_table );
-    GetLibFuncPtr( s->m_libhandle, "lpRootTableExpr",			s->m_parser_root_table_expression );
-    GetLibFuncPtr( s->m_libhandle, "lpSubTableInt",				s->m_parser_sub_table_int );
-    GetLibFuncPtr( s->m_libhandle, "lpSubTableStr",				s->m_parser_sub_table_string );
-    GetLibFuncPtr( s->m_libhandle, "lpSubTableExpr",			s->m_parser_sub_table_expression );
-    GetLibFuncPtr( s->m_libhandle, "lpPopTable",				s->m_parser_pop_table );
+    BIND(lpRootTablePtr, "lpRootTable", m_parser_root_table );
+    BIND(lpRootTableExprPtr, "lpRootTableExpr", m_parser_root_table_expression );
+    BIND(lpSubTableIntPtr, "lpSubTableInt", m_parser_sub_table_int );
+    BIND(lpSubTableStrPtr, "lpSubTableStr", m_parser_sub_table_string );
+    BIND(lpSubTableExprPtr, "lpSubTableExpr", m_parser_sub_table_expression );
+    BIND(lpPopTablePtr, "lpPopTable", m_parser_pop_table );
 
-    GetLibFuncPtr( s->m_libhandle, "lpGetKeyExistsInt",			s->m_parser_key_int_exists );
-    GetLibFuncPtr( s->m_libhandle, "lpGetKeyExistsStr",			s->m_parser_key_string_exists );
+    BIND(lpGetKeyExistsIntPtr, "lpGetKeyExistsInt", m_parser_key_int_exists );
+    BIND(lpGetKeyExistsStrPtr, "lpGetKeyExistsStr", m_parser_key_string_exists );
 
-    GetLibFuncPtr( s->m_libhandle, "lpGetIntKeyType",			s->m_parser_int_key_get_type );
-    GetLibFuncPtr( s->m_libhandle, "lpGetStrKeyType",			s->m_parser_string_key_get_type );
+    BIND(lpGetIntKeyTypePtr, "lpGetIntKeyType", m_parser_int_key_get_type );
+    BIND(lpGetStrKeyTypePtr, "lpGetStrKeyType", m_parser_string_key_get_type );
 
-    GetLibFuncPtr( s->m_libhandle, "lpGetIntKeyListCount",		s->m_parser_int_key_get_list_count );
-    GetLibFuncPtr( s->m_libhandle, "lpGetIntKeyListEntry",		s->m_parser_int_key_get_list_entry );
-    GetLibFuncPtr( s->m_libhandle, "lpGetStrKeyListCount",		s->m_parser_string_key_get_list_count );
-    GetLibFuncPtr( s->m_libhandle, "lpGetStrKeyListEntry",		s->m_parser_string_key_get_list_entry );
+    BIND(lpGetIntKeyListCountPtr, "lpGetIntKeyListCount", m_parser_int_key_get_list_count );
+    BIND(lpGetIntKeyListEntryPtr, "lpGetIntKeyListEntry", m_parser_int_key_get_list_entry );
+    BIND(lpGetStrKeyListCountPtr, "lpGetStrKeyListCount", m_parser_string_key_get_list_count );
+    BIND(lpGetStrKeyListEntryPtr, "lpGetStrKeyListEntry", m_parser_string_key_get_list_entry );
 
-    GetLibFuncPtr( s->m_libhandle, "lpGetIntKeyIntVal",			s->m_parser_int_key_get_int_value );
-    GetLibFuncPtr( s->m_libhandle, "lpGetStrKeyIntVal",			s->m_parser_string_key_get_int_value );
-    GetLibFuncPtr( s->m_libhandle, "lpGetIntKeyBoolVal",		s->m_parser_int_key_get_bool_value );
-    GetLibFuncPtr( s->m_libhandle, "lpGetStrKeyBoolVal",		s->m_parser_string_key_get_bool_value );
-    GetLibFuncPtr( s->m_libhandle, "lpGetIntKeyFloatVal",       s->m_parser_int_key_get_float_value );
-    GetLibFuncPtr( s->m_libhandle, "lpGetStrKeyFloatVal",		s->m_parser_string_key_get_float_value );
-    GetLibFuncPtr( s->m_libhandle, "lpGetIntKeyStrVal",			s->m_parser_int_key_get_string_value );
-    GetLibFuncPtr( s->m_libhandle, "lpGetStrKeyStrVal",			s->m_parser_string_key_get_string_value );
+    BIND(lpGetIntKeyIntValPtr, "lpGetIntKeyIntVal", m_parser_int_key_get_int_value );
+    BIND(lpGetStrKeyIntValPtr, "lpGetStrKeyIntVal", m_parser_string_key_get_int_value );
+    BIND(lpGetIntKeyBoolValPtr, "lpGetIntKeyBoolVal", m_parser_int_key_get_bool_value );
+    BIND(lpGetStrKeyBoolValPtr, "lpGetStrKeyBoolVal", m_parser_string_key_get_bool_value );
+    BIND(lpGetIntKeyFloatValPtr, "lpGetIntKeyFloatVal", m_parser_int_key_get_float_value );
+    BIND(lpGetStrKeyFloatValPtr, "lpGetStrKeyFloatVal", m_parser_string_key_get_float_value );
+    BIND(lpGetIntKeyStrValPtr, "lpGetIntKeyStrVal", m_parser_int_key_get_string_value );
+    BIND(lpGetStrKeyStrValPtr, "lpGetStrKeyStrVal", m_parser_string_key_get_string_value );
 }
 
 void UnitsyncFunctionLoader::MMOptions(UnitsyncLib *s)
 {
-    GetLibFuncPtr( s->m_libhandle, "GetMapOptionCount",			s->m_get_map_option_count );
-    GetLibFuncPtr( s->m_libhandle, "GetCustomOptionCount",		s->m_get_custom_option_count );
-    GetLibFuncPtr( s->m_libhandle, "GetModOptionCount",			s->m_get_mod_option_count );
-    GetLibFuncPtr( s->m_libhandle, "GetSkirmishAIOptionCount",  s->m_get_skirmish_ai_option_count );
-    GetLibFuncPtr( s->m_libhandle, "GetOptionKey",				s->m_get_option_key );
-    GetLibFuncPtr( s->m_libhandle, "GetOptionName",				s->m_get_option_name );
-    GetLibFuncPtr( s->m_libhandle, "GetOptionDesc",				s->m_get_option_desc );
-    GetLibFuncPtr( s->m_libhandle, "GetOptionType",				s->m_get_option_type );
-    GetLibFuncPtr( s->m_libhandle, "GetOptionSection",			s->m_get_option_section );
-    GetLibFuncPtr( s->m_libhandle, "GetOptionStyle",			s->m_get_option_style );
-    GetLibFuncPtr( s->m_libhandle, "GetOptionBoolDef",			s->m_get_option_bool_def );
-    GetLibFuncPtr( s->m_libhandle, "GetOptionNumberDef",		s->m_get_option_number_def );
-    GetLibFuncPtr( s->m_libhandle, "GetOptionNumberMin",		s->m_get_option_number_min );
-    GetLibFuncPtr( s->m_libhandle, "GetOptionNumberMax",		s->m_get_option_number_max );
-    GetLibFuncPtr( s->m_libhandle, "GetOptionNumberStep",		s->m_get_option_number_step );
-    GetLibFuncPtr( s->m_libhandle, "GetOptionStringDef",		s->m_get_option_string_def );
-    GetLibFuncPtr( s->m_libhandle, "GetOptionStringMaxLen",		s->m_get_option_string_max_len );
-    GetLibFuncPtr( s->m_libhandle, "GetOptionListCount",		s->m_get_option_list_count );
-    GetLibFuncPtr( s->m_libhandle, "GetOptionListDef",			s->m_get_option_list_def );
-    GetLibFuncPtr( s->m_libhandle, "GetOptionListItemKey",		s->m_get_option_list_item_key );
-    GetLibFuncPtr( s->m_libhandle, "GetOptionListItemName",		s->m_get_option_list_item_name );
-    GetLibFuncPtr( s->m_libhandle, "GetOptionListItemDesc",		s->m_get_option_list_item_desc );
+    BIND(GetMapOptionCountPtr, "GetMapOptionCount", m_get_map_option_count );
+    BIND(GetCustomOptionCountPtr, "GetCustomOptionCount", m_get_custom_option_count );
+    BIND(GetModOptionCountPtr, "GetModOptionCount", m_get_mod_option_count );
+    BIND(GetSkirmishAIOptionCountPtr, "GetSkirmishAIOptionCount",m_get_skirmish_ai_option_count );
+    BIND(GetOptionKeyPtr, "GetOptionKey", m_get_option_key );
+    BIND(GetOptionNamePtr, "GetOptionName", m_get_option_name );
+    BIND(GetOptionDescPtr, "GetOptionDesc", m_get_option_desc );
+    BIND(GetOptionTypePtr, "GetOptionType", m_get_option_type );
+    BIND(GetOptionSectionPtr, "GetOptionSection", m_get_option_section );
+    BIND(GetOptionStylePtr, "GetOptionStyle", m_get_option_style );
+    BIND(GetOptionBoolDefPtr, "GetOptionBoolDef", m_get_option_bool_def );
+    BIND(GetOptionNumberDefPtr, "GetOptionNumberDef", m_get_option_number_def );
+    BIND(GetOptionNumberMinPtr, "GetOptionNumberMin", m_get_option_number_min );
+    BIND(GetOptionNumberMaxPtr, "GetOptionNumberMax", m_get_option_number_max );
+    BIND(GetOptionNumberStepPtr, "GetOptionNumberStep", m_get_option_number_step );
+    BIND(GetOptionStringDefPtr, "GetOptionStringDef", m_get_option_string_def );
+    BIND(GetOptionStringMaxLenPtr, "GetOptionStringMaxLen", m_get_option_string_max_len );
+    BIND(GetOptionListCountPtr, "GetOptionListCount", m_get_option_list_count );
+    BIND(GetOptionListDefPtr, "GetOptionListDef", m_get_option_list_def );
+    BIND(GetOptionListItemKeyPtr, "GetOptionListItemKey", m_get_option_list_item_key );
+    BIND(GetOptionListItemNamePtr, "GetOptionListItemName", m_get_option_list_item_name );
+    BIND(GetOptionListItemDescPtr, "GetOptionListItemDesc", m_get_option_list_item_desc );
 }
 
 void UnitsyncFunctionLoader::Map(UnitsyncLib *s)
 {
-    GetLibFuncPtr( s->m_libhandle, "GetMapCount",					 s->m_get_map_count );
-    GetLibFuncPtr( s->m_libhandle, "GetMapChecksum",				 s->m_get_map_checksum );
-    GetLibFuncPtr( s->m_libhandle, "GetMapName",					 s->m_get_map_name );
+    BIND(GetMapCountPtr, "GetMapCount",  m_get_map_count );
+    BIND(GetMapChecksumPtr, "GetMapChecksum",  m_get_map_checksum );
+    BIND(GetMapNamePtr, "GetMapName",  m_get_map_name );
 
     try {
-        GetLibFuncPtr( s->m_libhandle, "GetMapDescription",             s->m_get_map_description );
-        GetLibFuncPtr( s->m_libhandle, "GetMapAuthor",                  s->m_get_map_author );
-        GetLibFuncPtr( s->m_libhandle, "GetMapWidth",                   s->m_get_map_width );
-        GetLibFuncPtr( s->m_libhandle, "GetMapHeight",                  s->m_get_map_height );
-        GetLibFuncPtr( s->m_libhandle, "GetMapTidalStrength",           s->m_get_map_tidalStrength );
-        GetLibFuncPtr( s->m_libhandle, "GetMapWindMin",                 s->m_get_map_windMin );
-        GetLibFuncPtr( s->m_libhandle, "GetMapWindMax",                 s->m_get_map_windMax );
-        GetLibFuncPtr( s->m_libhandle, "GetMapGravity",                 s->m_get_map_gravity );
-        GetLibFuncPtr( s->m_libhandle, "GetMapResourceCount",           s->m_get_map_resource_count );
-        GetLibFuncPtr( s->m_libhandle, "GetMapResourceName",            s->m_get_map_resource_name );
-        GetLibFuncPtr( s->m_libhandle, "GetMapResourceMax",             s->m_get_map_resource_max );
-        GetLibFuncPtr( s->m_libhandle, "GetMapResourceExtractorRadius", s->m_get_map_resource_extractorRadius );
-        GetLibFuncPtr( s->m_libhandle, "GetMapPosCount",                s->m_get_map_pos_count );
-        GetLibFuncPtr( s->m_libhandle, "GetMapPosX",                    s->m_get_map_pos_x );
-        GetLibFuncPtr( s->m_libhandle, "GetMapPosZ",                    s->m_get_map_pos_z );
+        BIND(GetMapDescriptionPtr, "GetMapDescription", m_get_map_description );
+        BIND(GetMapAuthorPtr, "GetMapAuthor", m_get_map_author );
+        BIND(GetMapWidthPtr, "GetMapWidth", m_get_map_width );
+        BIND(GetMapHeightPtr, "GetMapHeight", m_get_map_height );
+        BIND(GetMapTidalStrengthPtr, "GetMapTidalStrength", m_get_map_tidalStrength );
+        BIND(GetMapWindMinPtr, "GetMapWindMin", m_get_map_windMin );
+        BIND(GetMapWindMaxPtr, "GetMapWindMax", m_get_map_windMax );
+        BIND(GetMapGravityPtr, "GetMapGravity", m_get_map_gravity );
+        BIND(GetMapResourceCountPtr, "GetMapResourceCount", m_get_map_resource_count );
+        BIND(GetMapResourceNamePtr, "GetMapResourceName", m_get_map_resource_name );
+        BIND(GetMapResourceMaxPtr, "GetMapResourceMax", m_get_map_resource_max );
+        BIND(GetMapResourceExtractorRadiusPtr, "GetMapResourceExtractorRadius",m_get_map_resource_extractorRadius );
+        BIND(GetMapPosCountPtr, "GetMapPosCount", m_get_map_pos_count );
+        BIND(GetMapPosXPtr, "GetMapPosX", m_get_map_pos_x );
+        BIND(GetMapPosZPtr, "GetMapPosZ", m_get_map_pos_z );
         LslDebug("Using new style map-info fetching (GetMap*() functions).");
     }
     catch ( ... )
@@ -111,100 +114,100 @@ void UnitsyncFunctionLoader::Map(UnitsyncLib *s)
         s->m_get_map_name = NULL;
         LslDebug("Using old style map-info fetching (GetMapInfoEx()).");
     }
-    GetLibFuncPtr( s->m_libhandle, "GetMapInfoEx",					s->m_get_map_info_ex );
-    GetLibFuncPtr( s->m_libhandle, "GetMinimap",					s->m_get_minimap );
-    GetLibFuncPtr( s->m_libhandle, "GetInfoMapSize",				s->m_get_infomap_size );
-    GetLibFuncPtr( s->m_libhandle, "GetInfoMap",					s->m_get_infomap );
+    BIND(GetMapInfoExPtr, "GetMapInfoEx", m_get_map_info_ex );
+    BIND(GetMinimapPtr, "GetMinimap", m_get_minimap );
+    BIND(GetInfoMapSizePtr, "GetInfoMapSize", m_get_infomap_size );
+    BIND(GetInfoMapPtr, "GetInfoMap", m_get_infomap );
 
-    GetLibFuncPtr( s->m_libhandle, "GetMapArchiveCount",			s->m_get_map_archive_count );
-    GetLibFuncPtr( s->m_libhandle, "GetMapArchiveName",             s->m_get_map_archive_name );
-    GetLibFuncPtr( s->m_libhandle, "GetMapChecksum",				s->m_get_map_checksum );
-    GetLibFuncPtr( s->m_libhandle, "GetMapChecksumFromName",		s->m_get_map_checksum_from_name );
+    BIND(GetMapArchiveCountPtr, "GetMapArchiveCount", m_get_map_archive_count );
+    BIND(GetMapArchiveNamePtr, "GetMapArchiveName", m_get_map_archive_name );
+    BIND(GetMapChecksumPtr, "GetMapChecksum", m_get_map_checksum );
+    BIND(GetMapChecksumFromNamePtr, "GetMapChecksumFromName", m_get_map_checksum_from_name );
 }
 
 void UnitsyncFunctionLoader::Basic(UnitsyncLib *s)
 {
-    GetLibFuncPtr( s->m_libhandle, "Init",							s->m_init );
-    GetLibFuncPtr( s->m_libhandle, "UnInit",						s->m_uninit );
-    GetLibFuncPtr( s->m_libhandle, "GetNextError",					s->m_get_next_error );
-    GetLibFuncPtr( s->m_libhandle, "GetWritableDataDirectory",		s->m_get_writeable_data_dir );
-    GetLibFuncPtr( s->m_libhandle, "GetDataDirectory",				s->m_get_data_dir_by_index );
-    GetLibFuncPtr( s->m_libhandle, "GetDataDirectoryCount",         s->m_get_data_dir_count );
-    GetLibFuncPtr( s->m_libhandle, "GetSpringVersion",				s->m_get_spring_version );
+    BIND(InitPtr, "Init", m_init );
+    BIND(UnInitPtr, "UnInit", m_uninit );
+    BIND(GetNextErrorPtr, "GetNextError", m_get_next_error );
+    BIND(GetWritableDataDirectoryPtr, "GetWritableDataDirectory", m_get_writeable_data_dir );
+    BIND(GetDataDirectoryPtr, "GetDataDirectory", m_get_data_dir_by_index );
+    BIND(GetDataDirectoryCountPtr, "GetDataDirectoryCount", m_get_data_dir_count );
+    BIND(GetSpringVersionPtr, "GetSpringVersion", m_get_spring_version );
 
-    GetLibFuncPtr( s->m_libhandle, "AddAllArchives",				s->m_add_all_archives );
-    GetLibFuncPtr( s->m_libhandle, "RemoveAllArchives",             s->m_remove_all_archives );
+    BIND(AddAllArchivesPtr, "AddAllArchives", m_add_all_archives );
+    BIND(RemoveAllArchivesPtr, "RemoveAllArchives", m_remove_all_archives );
 
-    GetLibFuncPtr( s->m_libhandle, "InitFindVFS",					s->m_init_find_vfs );
-    GetLibFuncPtr( s->m_libhandle, "FindFilesVFS",					s->m_find_files_vfs );
-    GetLibFuncPtr( s->m_libhandle, "OpenFileVFS",					s->m_open_file_vfs );
-    GetLibFuncPtr( s->m_libhandle, "FileSizeVFS",					s->m_file_size_vfs );
-    GetLibFuncPtr( s->m_libhandle, "ReadFileVFS",					s->m_read_file_vfs );
-    GetLibFuncPtr( s->m_libhandle, "CloseFileVFS",					s->m_close_file_vfs );
+    BIND(InitFindVFSPtr, "InitFindVFS", m_init_find_vfs );
+    BIND(FindFilesVFSPtr, "FindFilesVFS", m_find_files_vfs );
+    BIND(OpenFileVFSPtr, "OpenFileVFS", m_open_file_vfs );
+    BIND(FileSizeVFSPtr, "FileSizeVFS", m_file_size_vfs );
+    BIND(ReadFileVFSPtr, "ReadFileVFS", m_read_file_vfs );
+    BIND(CloseFileVFSPtr, "CloseFileVFS", m_close_file_vfs );
 
 
-    GetLibFuncPtr( s->m_libhandle, "ProcessUnits",					s->m_process_units );
-    GetLibFuncPtr( s->m_libhandle, "AddArchive",					s->m_add_archive );
-    GetLibFuncPtr( s->m_libhandle, "GetArchiveChecksum",			s->m_get_archive_checksum );
-    GetLibFuncPtr( s->m_libhandle, "GetArchivePath",				s->m_get_archive_path );
+    BIND(ProcessUnitsPtr, "ProcessUnits", m_process_units );
+    BIND(AddArchivePtr, "AddArchive", m_add_archive );
+    BIND(GetArchiveChecksumPtr, "GetArchiveChecksum", m_get_archive_checksum );
+    BIND(GetArchivePathPtr, "GetArchivePath", m_get_archive_path );
 
-    GetLibFuncPtr( s->m_libhandle, "OpenArchive",					s->m_open_archive );
-    GetLibFuncPtr( s->m_libhandle, "CloseArchive",					s->m_close_archive );
-    GetLibFuncPtr( s->m_libhandle, "FindFilesArchive",				s->m_find_Files_archive );
-    GetLibFuncPtr( s->m_libhandle, "OpenArchiveFile",				s->m_open_archive_file );
-    GetLibFuncPtr( s->m_libhandle, "ReadArchiveFile",				s->m_read_archive_file );
-    GetLibFuncPtr( s->m_libhandle, "CloseArchiveFile",				s->m_close_archive_file );
-    GetLibFuncPtr( s->m_libhandle, "SizeArchiveFile",               s->m_size_archive_file );
+    BIND(OpenArchivePtr, "OpenArchive", m_open_archive );
+    BIND(CloseArchivePtr, "CloseArchive", m_close_archive );
+    BIND(FindFilesArchivePtr, "FindFilesArchive", m_find_Files_archive );
+    BIND(OpenArchiveFilePtr, "OpenArchiveFile", m_open_archive_file );
+    BIND(ReadArchiveFilePtr, "ReadArchiveFile", m_read_archive_file );
+    BIND(CloseArchiveFilePtr, "CloseArchiveFile", m_close_archive_file );
+    BIND(SizeArchiveFilePtr, "SizeArchiveFile", m_size_archive_file );
 
-    GetLibFuncPtr( s->m_libhandle, "GetSkirmishAICount",			s->m_get_skirmish_ai_count );
-    GetLibFuncPtr( s->m_libhandle, "GetSkirmishAIInfoCount",		s->m_get_skirmish_ai_info_count );
-    GetLibFuncPtr( s->m_libhandle, "GetInfoKey",					s->m_get_skirmish_ai_info_key );
-    GetLibFuncPtr( s->m_libhandle, "GetInfoValue",					s->m_get_skirmish_ai_info_value );
-    GetLibFuncPtr( s->m_libhandle, "GetInfoDescription",			s->m_get_skirmish_ai_info_description );
+    BIND(GetSkirmishAICountPtr, "GetSkirmishAICount", m_get_skirmish_ai_count );
+    BIND(GetSkirmishAIInfoCountPtr, "GetSkirmishAIInfoCount", m_get_skirmish_ai_info_count );
+    BIND(GetInfoKeyPtr, "GetInfoKey", m_get_skirmish_ai_info_key );
+    BIND(GetInfoValuePtr, "GetInfoValue", m_get_skirmish_ai_info_value );
+    BIND(GetInfoDescriptionPtr, "GetInfoDescription", m_get_skirmish_ai_info_description );
 }
 
 void UnitsyncFunctionLoader::Config(UnitsyncLib *s)
 {
-    GetLibFuncPtr( s->m_libhandle, "SetSpringConfigFile",			s->m_set_spring_config_file_path );
-    GetLibFuncPtr( s->m_libhandle, "GetSpringConfigFile",           s->m_get_spring_config_file_path );
+    BIND(SetSpringConfigFilePtr, "SetSpringConfigFile", m_set_spring_config_file_path );
+    BIND(GetSpringConfigFilePtr, "GetSpringConfigFile", m_get_spring_config_file_path );
 
-    GetLibFuncPtr( s->m_libhandle, "SetSpringConfigFloat",			s->m_set_spring_config_float );
-    GetLibFuncPtr( s->m_libhandle, "GetSpringConfigFloat",			s->m_get_spring_config_float );
-    GetLibFuncPtr( s->m_libhandle, "GetSpringConfigInt",            s->m_get_spring_config_int );
-    GetLibFuncPtr( s->m_libhandle, "GetSpringConfigString",         s->m_get_spring_config_string );
-    GetLibFuncPtr( s->m_libhandle, "SetSpringConfigString",         s->m_set_spring_config_string );
-    GetLibFuncPtr( s->m_libhandle, "SetSpringConfigInt",            s->m_set_spring_config_int );
+    BIND(SetSpringConfigFloatPtr, "SetSpringConfigFloat", m_set_spring_config_float );
+    BIND(GetSpringConfigFloatPtr, "GetSpringConfigFloat", m_get_spring_config_float );
+    BIND(GetSpringConfigIntPtr, "GetSpringConfigInt", m_get_spring_config_int );
+    BIND(GetSpringConfigStringPtr, "GetSpringConfigString", m_get_spring_config_string );
+    BIND(SetSpringConfigStringPtr, "SetSpringConfigString", m_set_spring_config_string );
+    BIND(SetSpringConfigIntPtr, "SetSpringConfigInt", m_set_spring_config_int );
 }
 
 void UnitsyncFunctionLoader::Mod(UnitsyncLib *s)
 {
-    GetLibFuncPtr( s->m_libhandle, "GetPrimaryModChecksum",         s->m_get_mod_checksum );
-    GetLibFuncPtr( s->m_libhandle, "GetPrimaryModIndex",			s->m_get_mod_index );
-    GetLibFuncPtr( s->m_libhandle, "GetPrimaryModName",             s->m_get_mod_name );
-    GetLibFuncPtr( s->m_libhandle, "GetPrimaryModCount",			s->m_get_mod_count );
-    GetLibFuncPtr( s->m_libhandle, "GetPrimaryModArchive",			s->m_get_mod_archive );
+    BIND(GetPrimaryModChecksumPtr, "GetPrimaryModChecksum", m_get_mod_checksum );
+    BIND(GetPrimaryModIndexPtr, "GetPrimaryModIndex", m_get_mod_index );
+    BIND(GetPrimaryModNamePtr, "GetPrimaryModName", m_get_mod_name );
+    BIND(GetPrimaryModCountPtr, "GetPrimaryModCount", m_get_mod_count );
+    BIND(GetPrimaryModArchivePtr, "GetPrimaryModArchive", m_get_mod_archive );
 
-    GetLibFuncPtr( s->m_libhandle, "GetSideCount",					s->m_get_side_count );
-    GetLibFuncPtr( s->m_libhandle, "GetSideName",					s->m_get_side_name );
+    BIND(GetSideCountPtr, "GetSideCount", m_get_side_count );
+    BIND(GetSideNamePtr, "GetSideName", m_get_side_name );
 
-    GetLibFuncPtr( s->m_libhandle, "GetPrimaryModShortName",		s->m_get_primary_mod_short_name );
-    GetLibFuncPtr( s->m_libhandle, "GetPrimaryModVersion",			s->m_get_primary_mod_version );
-    GetLibFuncPtr( s->m_libhandle, "GetPrimaryModMutator",			s->m_get_primary_mod_mutator );
-    GetLibFuncPtr( s->m_libhandle, "GetPrimaryModGame",             s->m_get_primary_mod_game );
-    GetLibFuncPtr( s->m_libhandle, "GetPrimaryModShortGame",		s->m_get_primary_mod_short_game );
-    GetLibFuncPtr( s->m_libhandle, "GetPrimaryModDescription",		s->m_get_primary_mod_description );
-    GetLibFuncPtr( s->m_libhandle, "GetPrimaryModArchive",			s->m_get_primary_mod_archive );
-    GetLibFuncPtr( s->m_libhandle, "GetPrimaryModArchiveCount",     s->m_get_primary_mod_archive_count );
-    GetLibFuncPtr( s->m_libhandle, "GetPrimaryModArchiveList",		s->m_get_primary_mod_archive_list );
-    GetLibFuncPtr( s->m_libhandle, "GetPrimaryModChecksumFromName", s->m_get_primary_mod_checksum_from_name );
+    BIND(GetPrimaryModShortNamePtr, "GetPrimaryModShortName", m_get_primary_mod_short_name );
+    BIND(GetPrimaryModVersionPtr, "GetPrimaryModVersion", m_get_primary_mod_version );
+    BIND(GetPrimaryModMutatorPtr, "GetPrimaryModMutator", m_get_primary_mod_mutator );
+    BIND(GetPrimaryModGamePtr, "GetPrimaryModGame", m_get_primary_mod_game );
+    BIND(GetPrimaryModShortGamePtr, "GetPrimaryModShortGame", m_get_primary_mod_short_game );
+    BIND(GetPrimaryModDescriptionPtr, "GetPrimaryModDescription", m_get_primary_mod_description );
+    BIND(GetPrimaryModArchivePtr, "GetPrimaryModArchive", m_get_primary_mod_archive );
+    BIND(GetPrimaryModArchiveCountPtr, "GetPrimaryModArchiveCount",m_get_primary_mod_archive_count );
+    BIND(GetPrimaryModArchiveListPtr, "GetPrimaryModArchiveList", m_get_primary_mod_archive_list );
+    BIND(GetPrimaryModChecksumFromNamePtr, "GetPrimaryModChecksumFromName",m_get_primary_mod_checksum_from_name );
 
-    GetLibFuncPtr( s->m_libhandle, "GetModValidMapCount",			s->m_get_mod_valid_map_count );
-    GetLibFuncPtr( s->m_libhandle, "GetModValidMap",				s->m_get_valid_map );
+    BIND(GetModValidMapCountPtr, "GetModValidMapCount", m_get_mod_valid_map_count );
+    BIND(GetModValidMapPtr, "GetModValidMap", m_get_valid_map );
 
-    GetLibFuncPtr( s->m_libhandle, "GetUnitCount",					s->m_get_unit_count );
-    GetLibFuncPtr( s->m_libhandle, "GetUnitName",					s->m_get_unit_name );
-    GetLibFuncPtr( s->m_libhandle, "GetFullUnitName",				s->m_get_unit_full_name );
-    GetLibFuncPtr( s->m_libhandle, "ProcessUnitsNoChecksum",		s->m_proc_units_nocheck );
+    BIND(GetUnitCountPtr, "GetUnitCount", m_get_unit_count );
+    BIND(GetUnitNamePtr, "GetUnitName", m_get_unit_name );
+    BIND(GetFullUnitNamePtr, "GetFullUnitName", m_get_unit_full_name );
+    BIND(ProcessUnitsNoChecksumPtr, "ProcessUnitsNoChecksum", m_proc_units_nocheck );
 }
 
 

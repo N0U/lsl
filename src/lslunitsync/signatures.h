@@ -1,203 +1,203 @@
 #ifndef LSL_SIGNATURES_H
 #define LSL_SIGNATURES_H
 
-#if WIN32
- #define USYNC_CALL_CONV __stdcall
-#else
- #define USYNC_CALL_CONV
-#endif
-
-#include <boost/function.hpp>
-
 namespace LSL {
 
 struct SpringMapInfo;
 
-/**
- * \defgroup DllPointerTypes Pointer types used with the unitsync library.
- * \TODO move from global namespace
- */
-/** @{ */
+/** @{
+, \defgroup DllPointerTypes Pointer types used with the unitsync library.
+, \TODO move from global namespace
+,/
+*/
 
-typedef boost::function< const char* () > GetSpringVersionPtr;
 
-typedef boost::function< int (bool, int) > InitPtr;
-typedef boost::function< void () > UnInitPtr;
-typedef boost::function< const char* () > GetNextErrorPtr;
-typedef boost::function< const char* () > GetWritableDataDirectoryPtr;
-typedef boost::function< const char* (int) > GetDataDirectoryPtr;
-typedef boost::function< int () > GetDataDirectoryCountPtr;
+#ifdef WIN32
+#define USYNC_CALLCONV __stdcall
+#else
+#define USYNC_CALLCONV
+#endif
 
-typedef boost::function< int () > GetMapCountPtr;
-typedef boost::function< unsigned int (int) > GetMapChecksumPtr;
-typedef boost::function< const char* (int) > GetMapNamePtr;
-typedef boost::function< const char* (int) > GetMapDescriptionPtr;
-typedef boost::function< const char* (int) > GetMapAuthorPtr;
-typedef boost::function< int   (int) > GetMapWidthPtr;
-typedef boost::function< int   (int) > GetMapHeightPtr;
-typedef boost::function< int   (int) > GetMapTidalStrengthPtr;
-typedef boost::function< int   (int) > GetMapWindMinPtr;
-typedef boost::function< int   (int) > GetMapWindMaxPtr;
-typedef boost::function< int   (int) > GetMapGravityPtr;
-typedef boost::function< int   (int) > GetMapResourceCountPtr;
-typedef boost::function< const char* (int, int) > GetMapResourceNamePtr;
-typedef boost::function< float   (int, int) > GetMapResourceMaxPtr;
-typedef boost::function< int   (int, int) > GetMapResourceExtractorRadiusPtr;
-typedef boost::function< int   (int) > GetMapPosCountPtr;
-typedef boost::function< float   (int, int) > GetMapPosXPtr;
-typedef boost::function< float   (int, int) > GetMapPosZPtr;
+#define FUNC(ret, name, ...) \
+	typedef ret (USYNC_CALLCONV *name)(__VA_ARGS__)
 
-typedef boost::function< int (const char*, SpringMapInfo*, int) > GetMapInfoExPtr;
-typedef boost::function< void* (const char*, int) > GetMinimapPtr;
-typedef boost::function< int (const char*, const char*, int*, int*) > GetInfoMapSizePtr;
-typedef boost::function< int (const char*, const char*, void*, int) > GetInfoMapPtr;
+FUNC(const char*, GetSpringVersionPtr);
 
-typedef boost::function< unsigned int (int) > GetPrimaryModChecksumPtr;
-typedef boost::function< int (const char*) > GetPrimaryModIndexPtr;
-typedef boost::function< const char* (int) > GetPrimaryModNamePtr;
-typedef boost::function< int () > GetPrimaryModCountPtr;
-typedef boost::function< const char* (int) > GetPrimaryModArchivePtr;
+FUNC(int,InitPtr, bool, int);
+FUNC(void,UnInitPtr);
+FUNC(const char*, GetNextErrorPtr);
+FUNC(const char*, GetWritableDataDirectoryPtr);
+FUNC(const char*, GetDataDirectoryPtr, int);
+FUNC(int, GetDataDirectoryCountPtr);
 
-typedef boost::function< int () > GetSideCountPtr;
-typedef boost::function< const char* (int) > GetSideNamePtr;
+FUNC(int, GetMapCountPtr);
+FUNC(unsigned int, GetMapChecksumPtr, int);
+FUNC(const char*, GetMapNamePtr, int);
+FUNC(const char*, GetMapDescriptionPtr, int);
+FUNC(const char*, GetMapAuthorPtr, int);
+FUNC(int, GetMapWidthPtr, int);
+FUNC(int, GetMapHeightPtr, int);
+FUNC(int, GetMapTidalStrengthPtr, int);
+FUNC(int, GetMapWindMinPtr, int);
+FUNC(int, GetMapWindMaxPtr, int);
+FUNC(int, GetMapGravityPtr, int);
+FUNC(int, GetMapResourceCountPtr, int);
+FUNC(const char*, GetMapResourceNamePtr, int, int);
+FUNC(float, GetMapResourceMaxPtr, int, int);
+FUNC(int, GetMapResourceExtractorRadiusPtr, int, int);
+FUNC(int, GetMapPosCountPtr, int);
+FUNC(float, GetMapPosXPtr, int, int);
+FUNC(float, GetMapPosZPtr, int, int);
 
-typedef boost::function< void (const char*) > AddAllArchivesPtr;
-typedef boost::function< void () > RemoveAllArchivesPtr;
+FUNC(int, GetMapInfoExPtr, const char*, SpringMapInfo*, int);
+FUNC(void*, GetMinimapPtr, const char*, int);
+FUNC(int, GetInfoMapSizePtr, const char*, const char*, int*, int*);
+FUNC(int, GetInfoMapPtr, const char*, const char*, void*, int);
 
-typedef boost::function< const char * (int) > GetFullUnitNamePtr;
-typedef boost::function< const char * (int) > GetUnitNamePtr;
-typedef boost::function< int () > GetUnitCountPtr;
-typedef boost::function< int () > ProcessUnitsNoChecksumPtr;
+FUNC(unsigned int, GetPrimaryModChecksumPtr, int);
+FUNC(int, GetPrimaryModIndexPtr, const char*);
+FUNC(const char*, GetPrimaryModNamePtr, int);
+FUNC(int, GetPrimaryModCountPtr);
+FUNC(const char*, GetPrimaryModArchivePtr, int);
 
-typedef boost::function< int (const char*) > InitFindVFSPtr;
-typedef boost::function< int (int, char*, int) > FindFilesVFSPtr;
-typedef boost::function< int (const char*) > OpenFileVFSPtr;
-typedef boost::function< int (int) > FileSizeVFSPtr;
-typedef boost::function< int (int, void*, int) > ReadFileVFSPtr;
-typedef boost::function< void (int) > CloseFileVFSPtr;
+FUNC(int, GetSideCountPtr);
+FUNC(const char*, GetSideNamePtr, int);
 
-typedef boost::function< void (const char*) > SetSpringConfigFilePtr;
-typedef boost::function< const char * () > GetSpringConfigFilePtr;
+FUNC(void,AddAllArchivesPtr, const char*);
+FUNC(void,RemoveAllArchivesPtr);
 
-typedef boost::function< int (const char*, int ) > GetSpringConfigIntPtr;
-typedef boost::function< const char* (const char*, const char* ) > GetSpringConfigStringPtr;
-typedef boost::function< float (const char*, float ) > GetSpringConfigFloatPtr;
+FUNC(const char*, GetFullUnitNamePtr, int);
+FUNC(const char*, GetUnitNamePtr, int);
+FUNC(int, GetUnitCountPtr);
+FUNC(int,ProcessUnitsNoChecksumPtr);
 
-typedef boost::function< void (const char*, const char* ) > SetSpringConfigStringPtr;
-typedef boost::function< void (const char*, int ) > SetSpringConfigIntPtr;
-typedef boost::function< void (const char*, float ) > SetSpringConfigFloatPtr;
+FUNC(int,InitFindVFSPtr, const char*);
+FUNC(int,FindFilesVFSPtr, int, char*, int);
+FUNC(int,OpenFileVFSPtr, const char*);
+FUNC(int,FileSizeVFSPtr, int);
+FUNC(int,ReadFileVFSPtr, int, void*, int);
+FUNC(void,CloseFileVFSPtr, int);
 
-typedef boost::function< int (void) > ProcessUnitsPtr;
-typedef boost::function< void (const char*) > AddArchivePtr;
-typedef boost::function< unsigned int (const char*) > GetArchiveChecksumPtr;
-typedef boost::function< const char* (const char*) > GetArchivePathPtr;
-typedef boost::function< int (const char*) > GetMapArchiveCountPtr;
-typedef boost::function< const char* (int) > GetMapArchiveNamePtr;
-typedef boost::function< unsigned int (int) > GetMapChecksumPtr;
-typedef boost::function< int (const char*) > GetMapChecksumFromNamePtr;
+FUNC(void,SetSpringConfigFilePtr, const char*);
+FUNC(const char*, GetSpringConfigFilePtr);
 
-typedef boost::function< const char* (int) > GetPrimaryModShortNamePtr;
-typedef boost::function< const char* (int) > GetPrimaryModVersionPtr;
-typedef boost::function< const char* (int) > GetPrimaryModMutatorPtr;
-typedef boost::function< const char* (int) > GetPrimaryModGamePtr;
-typedef boost::function< const char* (int) > GetPrimaryModShortGamePtr;
-typedef boost::function< const char* (int) > GetPrimaryModDescriptionPtr;
-typedef boost::function< const char* (int) > GetPrimaryModArchivePtr;
-typedef boost::function< int (int) > GetPrimaryModArchiveCountPtr;
-typedef boost::function< const char* (int) > GetPrimaryModArchiveListPtr;
-typedef boost::function< unsigned int (const char*) > GetPrimaryModChecksumFromNamePtr;
-typedef boost::function< unsigned int () > GetModValidMapCountPtr;
-typedef boost::function< const char* (int) > GetModValidMapPtr;
+FUNC(int, GetSpringConfigIntPtr, const char*, int );
+FUNC(const char*, GetSpringConfigStringPtr, const char*, const char* );
+FUNC(float, GetSpringConfigFloatPtr, const char*, float );
 
-typedef boost::function< int () > GetLuaAICountPtr;
-typedef boost::function< const char* (int) > GetLuaAINamePtr;
-typedef boost::function< const char* (int) > GetLuaAIDescPtr;
+FUNC(void,SetSpringConfigStringPtr, const char*, const char* );
+FUNC(void,SetSpringConfigIntPtr, const char*, int );
+FUNC(void,SetSpringConfigFloatPtr, const char*, float );
 
-typedef boost::function< int (const char*) > GetMapOptionCountPtr;
-typedef boost::function< int (const char*) > GetCustomOptionCountPtr;
-typedef boost::function< int () > GetModOptionCountPtr;
-typedef boost::function< int (int) > GetSkirmishAIOptionCountPtr;
-typedef boost::function< const char* (int) > GetOptionKeyPtr;
-typedef boost::function< const char* (int) > GetOptionNamePtr;
-typedef boost::function< const char* (int) > GetOptionDescPtr;
-typedef boost::function< const char* (int) > GetOptionSectionPtr;
-typedef boost::function< const char* (int) > GetOptionStylePtr;
-typedef boost::function< int (int) > GetOptionTypePtr;
-typedef boost::function< int (int) > GetOptionBoolDefPtr;
-typedef boost::function< float (int) > GetOptionNumberDefPtr;
-typedef boost::function< float (int) > GetOptionNumberMinPtr;
-typedef boost::function< float (int) > GetOptionNumberMaxPtr;
-typedef boost::function< float (int) > GetOptionNumberStepPtr;
-typedef boost::function< const char* (int) > GetOptionStringDefPtr;
-typedef boost::function< int (int) > GetOptionStringMaxLenPtr;
-typedef boost::function< int (int) > GetOptionListCountPtr;
-typedef boost::function< const char* (int) > GetOptionListDefPtr;
-typedef boost::function< const char* (int, int) > GetOptionListItemKeyPtr;
-typedef boost::function< const char* (int, int) > GetOptionListItemNamePtr;
-typedef boost::function< const char* (int, int) > GetOptionListItemDescPtr;
+FUNC(int,ProcessUnitsPtr, void);
+FUNC(void,AddArchivePtr, const char*);
+FUNC(unsigned int, GetArchiveChecksumPtr, const char*);
+FUNC(const char*, GetArchivePathPtr, const char*);
+FUNC(int, GetMapArchiveCountPtr, const char*);
+FUNC(const char*, GetMapArchiveNamePtr, int);
+FUNC(unsigned int, GetMapChecksumPtr, int);
+FUNC(int, GetMapChecksumFromNamePtr, const char*);
 
-typedef boost::function< int (const char*) > OpenArchivePtr;
-typedef boost::function< void (int) > CloseArchivePtr;
-typedef boost::function< int (int, int, char*, int*) > FindFilesArchivePtr;
-typedef boost::function< int (int, const char*) > OpenArchiveFilePtr;
-typedef boost::function< int (int, int, void*, int) > ReadArchiveFilePtr;
-typedef boost::function< void (int, int) > CloseArchiveFilePtr;
-typedef boost::function< int (int, int) > SizeArchiveFilePtr;
+FUNC(const char*, GetPrimaryModShortNamePtr, int);
+FUNC(const char*, GetPrimaryModVersionPtr, int);
+FUNC(const char*, GetPrimaryModMutatorPtr, int);
+FUNC(const char*, GetPrimaryModGamePtr, int);
+FUNC(const char*, GetPrimaryModShortGamePtr, int);
+FUNC(const char*, GetPrimaryModDescriptionPtr, int);
+FUNC(const char*, GetPrimaryModArchivePtr, int);
+FUNC(int, GetPrimaryModArchiveCountPtr, int);
+FUNC(const char*, GetPrimaryModArchiveListPtr, int);
+FUNC(unsigned int, GetPrimaryModChecksumFromNamePtr, const char*);
+FUNC(unsigned int, GetModValidMapCountPtr);
+FUNC(const char*, GetModValidMapPtr, int);
 
-typedef boost::function< int () > GetSkirmishAICountPtr;
-typedef boost::function< int (int) > GetSkirmishAIInfoCountPtr;
-typedef boost::function< const char* (int) > GetInfoKeyPtr;
-typedef boost::function< const char* (int) > GetInfoValuePtr;
-typedef boost::function< const char* (int) > GetInfoDescriptionPtr;
+FUNC(int, GetLuaAICountPtr);
+FUNC(const char*, GetLuaAINamePtr, int);
+FUNC(const char*, GetLuaAIDescPtr, int);
+
+FUNC(int, GetMapOptionCountPtr, const char*);
+FUNC(int, GetCustomOptionCountPtr, const char*);
+FUNC(int, GetModOptionCountPtr);
+FUNC(int, GetSkirmishAIOptionCountPtr, int);
+FUNC(const char*, GetOptionKeyPtr, int);
+FUNC(const char*, GetOptionNamePtr, int);
+FUNC(const char*, GetOptionDescPtr, int);
+FUNC(const char*, GetOptionSectionPtr, int);
+FUNC(const char*, GetOptionStylePtr, int);
+FUNC(int, GetOptionTypePtr, int);
+FUNC(int, GetOptionBoolDefPtr, int);
+FUNC(float, GetOptionNumberDefPtr, int);
+FUNC(float, GetOptionNumberMinPtr, int);
+FUNC(float, GetOptionNumberMaxPtr, int);
+FUNC(float, GetOptionNumberStepPtr, int);
+FUNC(const char*, GetOptionStringDefPtr, int);
+FUNC(int, GetOptionStringMaxLenPtr, int);
+FUNC(int, GetOptionListCountPtr, int);
+FUNC(const char*, GetOptionListDefPtr, int);
+FUNC(const char*, GetOptionListItemKeyPtr, int, int);
+FUNC(const char*, GetOptionListItemNamePtr, int, int);
+FUNC(const char*, GetOptionListItemDescPtr, int, int);
+
+FUNC(int,OpenArchivePtr, const char*);
+FUNC(void,CloseArchivePtr, int);
+FUNC(int,FindFilesArchivePtr, int, int, char*, int*);
+FUNC(int,OpenArchiveFilePtr, int, const char*);
+FUNC(int,ReadArchiveFilePtr, int, int, void*, int);
+FUNC(void,CloseArchiveFilePtr, int, int);
+FUNC(int,SizeArchiveFilePtr, int, int);
+
+FUNC(int, GetSkirmishAICountPtr);
+FUNC(int, GetSkirmishAIInfoCountPtr, int);
+FUNC(const char*, GetInfoKeyPtr, int);
+FUNC(const char*, GetInfoValuePtr, int);
+FUNC(const char*, GetInfoDescriptionPtr, int);
 
 /// Unitsync functions wrapping lua parser
-typedef boost::function< void () > lpClosePtr;
-typedef boost::function< int (const char*, const char*, const char*) > lpOpenFilePtr;
-typedef boost::function< int (const char*, const char*) > lpOpenSourcePtr;
-typedef boost::function< int () > lpExecutePtr;
-typedef boost::function< const char* () > lpErrorLogPtr;
-
-typedef boost::function< void (int, int override) > lpAddTableIntPtr;
-typedef boost::function< void (const char*, int override) > lpAddTableStrPtr;
-typedef boost::function< void () > lpEndTablePtr;
-typedef boost::function< void (int, int) > lpAddIntKeyIntValPtr;
-typedef boost::function< void (const char*, int) > lpAddStrKeyIntValPtr;
-typedef boost::function< void (int, int) > lpAddIntKeyBoolValPtr;
-typedef boost::function< void (const char*, int) > lpAddStrKeyBoolValPtr;
-typedef boost::function< void (int, float val) > lpAddIntKeyFloatValPtr;
-typedef boost::function< void (const char*, float val) > lpAddStrKeyFloatValPtr;
-typedef boost::function< void (int, const char* val) > lpAddIntKeyStrValPtr;
-typedef boost::function< void (const char*, const char* val) > lpAddStrKeyStrValPtr;
-
-typedef boost::function< int () > lpRootTablePtr;
-typedef boost::function< int (const char* expr) > lpRootTableExprPtr;
-typedef boost::function< int (int) > lpSubTableIntPtr;
-typedef boost::function< int (const char*) > lpSubTableStrPtr;
-typedef boost::function< int (const char* expr) > lpSubTableExprPtr;
-typedef boost::function< void () > lpPopTablePtr;
-
-typedef boost::function< int (int) > lpGetKeyExistsIntPtr;
-typedef boost::function< int (const char*) > lpGetKeyExistsStrPtr;
-
-typedef boost::function< int (int) > lpGetIntKeyTypePtr;
-typedef boost::function< int (const char*) > lpGetStrKeyTypePtr;
-
-typedef boost::function< int () > lpGetIntKeyListCountPtr;
-typedef boost::function< int (int) > lpGetIntKeyListEntryPtr;
-typedef boost::function< int () > lpGetStrKeyListCountPtr;
-typedef boost::function< const char* (int) > lpGetStrKeyListEntryPtr;
-
-typedef boost::function< int (int, int) > lpGetIntKeyIntValPtr;
-typedef boost::function< int (const char*, int) > lpGetStrKeyIntValPtr;
-typedef boost::function< int (int, int) > lpGetIntKeyBoolValPtr;
-typedef boost::function< int (const char*, int) > lpGetStrKeyBoolValPtr;
-typedef boost::function< float (int, float) > lpGetIntKeyFloatValPtr;
-typedef boost::function< float (const char*, float) > lpGetStrKeyFloatValPtr;
-typedef boost::function< const char* (int, const char*) > lpGetIntKeyStrValPtr;
-typedef boost::function< const char* (const char*, const char*) > lpGetStrKeyStrValPtr;
-
-
 /** @} */
+FUNC(void, lpClosePtr);
+FUNC(int, lpOpenFilePtr, const char*, const char*, const char*);
+FUNC(int, lpOpenSourcePtr, const char*, const char*);
+FUNC(int, lpExecutePtr);
+FUNC(const char*, lpErrorLogPtr);
+
+FUNC(void, lpAddTableIntPtr, int, int override);
+FUNC(void, lpAddTableStrPtr, const char*, int override);
+FUNC(void, lpEndTablePtr);
+FUNC(void, lpAddIntKeyIntValPtr, int, int);
+FUNC(void, lpAddStrKeyIntValPtr, const char*, int);
+FUNC(void, lpAddIntKeyBoolValPtr, int, int);
+FUNC(void, lpAddStrKeyBoolValPtr, const char*, int);
+FUNC(void, lpAddIntKeyFloatValPtr, int, float val);
+FUNC(void, lpAddStrKeyFloatValPtr, const char*, float val);
+FUNC(void, lpAddIntKeyStrValPtr, int, const char* val);
+FUNC(void, lpAddStrKeyStrValPtr, const char*, const char* val);
+
+FUNC(int, lpRootTablePtr);
+FUNC(int, lpRootTableExprPtr, const char* expr);
+FUNC(int, lpSubTableIntPtr, int);
+FUNC(int, lpSubTableStrPtr, const char*);
+FUNC(int, lpSubTableExprPtr, const char* expr);
+FUNC(void, lpPopTablePtr);
+
+FUNC(int, lpGetKeyExistsIntPtr, int);
+FUNC(int, lpGetKeyExistsStrPtr, const char*);
+
+FUNC(int, lpGetIntKeyTypePtr, int);
+FUNC(int, lpGetStrKeyTypePtr, const char*);
+
+FUNC(int, lpGetIntKeyListCountPtr);
+FUNC(int, lpGetIntKeyListEntryPtr, int);
+FUNC(int, lpGetStrKeyListCountPtr);
+FUNC(const char*, lpGetStrKeyListEntryPtr, int);
+
+FUNC(int, lpGetIntKeyIntValPtr, int, int);
+FUNC(int, lpGetStrKeyIntValPtr, const char*, int);
+FUNC(int, lpGetIntKeyBoolValPtr, int, int);
+FUNC(int, lpGetStrKeyBoolValPtr, const char*, int);
+FUNC(float, lpGetIntKeyFloatValPtr, int, float);
+FUNC(float, lpGetStrKeyFloatValPtr, const char*, float);
+FUNC(const char*, lpGetIntKeyStrValPtr, int, const char*);
+FUNC(const char*, lpGetStrKeyStrValPtr, const char*, const char*);
 
 
 } //namespace LSL

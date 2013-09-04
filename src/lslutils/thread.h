@@ -84,13 +84,14 @@ class WorkerThread : public boost::noncopyable
 {
   public:
     WorkerThread();
+	~WorkerThread();
     /** @brief Adds a new WorkItem to the queue */
     void DoWork(WorkItem* item, int priority = 0, bool toBeDeleted = true);
 	//! joins underlying thread
 	void Wait();
   private:
     friend class boost::thread;
-    WorkItemQueue m_workItems;
+    WorkItemQueue m_workeritemqueue;
 	boost::thread* m_thread;
     boost::mutex m_mutex;
 };

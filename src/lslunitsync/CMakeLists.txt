@@ -1,5 +1,6 @@
 SET(libUnitsyncSrc
 	"${CMAKE_CURRENT_SOURCE_DIR}/c_api.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/sharedlib.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/image.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/loader.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/mmoptionmodel.cpp"

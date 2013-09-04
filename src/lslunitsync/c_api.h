@@ -331,7 +331,7 @@ private:
 	bool m_loaded;
 
 	//! Handle to the unitsync library.
-	boost::extensions::shared_library* m_libhandle;
+	void* m_libhandle;
 
 	//! Critical section controlling access to unitsync functions.
 	mutable boost::mutex m_lock;

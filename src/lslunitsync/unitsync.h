@@ -112,9 +112,6 @@ public:
 	std::string GetTextfileAsString( const std::string& modname, const std::string& file_path );
 
 	bool ReloadUnitSyncLib(  );
-//	void ReloadUnitSyncLib( GlobalEvents::GlobalEventData /*data*/ ) { ReloadUnitSyncLib(); }
-	bool FastLoadUnitSyncLib( const std::string& unitsyncloc );
-	bool FastLoadUnitSyncLibInit();
 
     void SetSpringDataPath( const std::string& path );
     bool GetSpringDataPath( std::string& path);
@@ -189,11 +186,6 @@ public:
     //! the extension itself would be added in the function as needed
     std::string GetFileCachePath( const std::string& name, const std::string& hash, bool IsMod );
 
-    //! returns an array where each element is a line of the file
-    StringVector GetCacheFile( const std::string& path ) const;
-    //! write a file where each element of the array is a line
-    void SetCacheFile( const std::string& path, const StringVector& data );
-
     bool _LoadUnitSyncLib( const std::string& unitsyncloc );
     void _FreeUnitSyncLib();
 
@@ -209,6 +201,12 @@ public:
 	friend Unitsync& usync();
 public:
 	std::string GetNameForShortname( const std::string& shortname, const std::string& version ) const;
+private:
+	//! returns an array where each element is a line of the file
+	StringVector GetCacheFile( const std::string& path ) const;
+	//! write a file where each element of the array is a line
+	void SetCacheFile( const std::string& path, const StringVector& data );
+
 };
 
 Unitsync& usync();
@@ -226,14 +224,14 @@ struct GameOptions
 class UnitSyncAsyncOps : public boost::noncopyable
 {
 public:
-    UnitSyncAsyncOps( const Unitsync::StringSignalSlotType& evtHandler )
-//        : m_evtHandler_connection()
+    UnitSyncAsyncOps( const Unitsync::StringSignalSlotType& evtHandler ):
+		m_evtHandler_connection()
     {
-        usync().RegisterEvtHandler(evtHandler);
+		m_evtHandler_connection = usync().RegisterEvtHandler(evtHandler);
     }
 
 	~UnitSyncAsyncOps() {
-//        usync().UnregisterEvtHandler(m_evtHandler_connection);
+        usync().UnregisterEvtHandler(m_evtHandler_connection);
 	}
 
 	void GetMinimap( const std::string& mapname )                 { usync().GetMinimapAsync( mapname ); }
@@ -245,7 +243,7 @@ public:
 	void GetMapEx( const std::string& mapname )                   { usync().GetMapExAsync( mapname ); }
 
 private:
-//    boost::signals2::connection m_evtHandler_connection;
+	boost::signals2::connection m_evtHandler_connection;
 };
 
 } // namespace LSL

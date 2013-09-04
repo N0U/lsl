@@ -1,10 +1,5 @@
 /* Copyright (C) 2007 The SpringLobby Team. All rights reserved. */
 
-#if WIN32
-    //uses __stdcall for bind
-    #define BOOST_BIND_ENABLE_STDCALL
-#endif
-
 #include "c_api.h"
 
 #include <stdexcept>
@@ -22,7 +17,7 @@
 
 #include "image.h"
 #include "loader.h"
-#include "function_ptr.h"
+#include "sharedlib.h"
 
 #define UNITSYNC_EXCEPTION(cond,msg) do { if(!(cond))\
 	LSL_THROW(unitsync,msg); } while(0)
@@ -72,6 +67,7 @@ void UnitsyncLib::Load( const std::string& path, const std::string& forceConfigF
 	_Init();
 }
 
+
 void UnitsyncLib::_Load( const std::string& path )
 {
 	if ( _IsLoaded() && path == m_path ) return;
@@ -82,39 +78,7 @@ void UnitsyncLib::_Load( const std::string& path )
 
 	// Load the library.
 	LslDebug( "Loading from: %s", path.c_str() );
-
-	// Check if library exists
-	if ( !Util::FileExists( path ) )
-	{
-		LslDebug( "File not found: %s", path.c_str() );
-		LSL_THROW( file_not_found, path );
-	}
-	// Check if library readable
-	if ( !Util::FileCanOpen( path ) )
-	{
-		LslDebug( "couldn read unitsync from %s", path.c_str() );
-		LSL_THROW( unitsync, "lib at given location is present, but not readable." );
-	}
-
-	{
-		try {
-#ifdef __WXMSW__
-			boost::filesystem::path us_path( path );
-            boost::filesystem::current_path( us_path.parent_path() );
-#endif
-			m_libhandle = new boost::extensions::shared_library( path );
-			if ( !m_libhandle->open() ) {
-				delete m_libhandle;
-				m_libhandle = 0;
-			}
-		} catch(std::exception& e) {
-			LslDebug( "UNITSYNC, loading failed, nulling handle: %s\n", e.what() );
-			m_libhandle = 0;
-		}
-	}
-
-	if (!m_libhandle)
-		LSL_THROW( unitsync, "Couldn't load the unitsync library" );
+	m_libhandle = _LoadLibrary(path);
 
 	// Load all function from library.
 	try {
@@ -175,8 +139,7 @@ void UnitsyncLib::_Unload()
 
 	if (m_uninit)
 		m_uninit();
-
-	delete m_libhandle;
+	_FreeLibrary(m_libhandle);
 	m_libhandle = NULL;
 	m_init = NULL;
 	m_uninit = NULL;
@@ -295,18 +258,10 @@ std::map<std::string, std::string> UnitsyncLib::GetSpringVersionList(const std::
 			{
 				LSL_THROW( file_not_found, path);
 			}
+			void* temphandle = _LoadLibrary(path);
 
-#ifdef __WXMSW__
-			boost::filesystem::path us_path( path );
-			boost::filesystem::current_path( us_path.parent_path() );
-#endif
-			boost::extensions::shared_library temphandle( path );
-			if( !temphandle.open())
-				LSL_THROW(unitsync, "Couldn't load the unitsync library");
-
-			GetSpringVersionPtr getspringversion = 0;
 			std::string functionname = "GetSpringVersion";
-			GetLibFuncPtr( &temphandle, functionname, getspringversion );
+			GetSpringVersionPtr getspringversion =(GetSpringVersionPtr)GetLibFuncPtr( temphandle, functionname);
 			if( !getspringversion )
 				LSL_THROW( unitsync, "getspringversion: function not found");
 			std::string version = getspringversion();
