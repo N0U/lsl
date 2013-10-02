@@ -418,14 +418,16 @@ MapInfo UnitsyncLib::GetMapInfoEx( int index, int version )
 UnitsyncImage UnitsyncLib::GetMinimap( const std::string& mapFileName )
 {
 	InitLib( m_get_minimap );
-	const int miplevel = 0;  // miplevel should not be 10 ffs
+	const int miplevel = 1;  // miplevel should not be 10 ffs
 	const int width  = 1024 >> miplevel;
 	const int height = 1024 >> miplevel;
 	// this unitsync call returns a pointer to a static buffer
 	unsigned short* colors = (unsigned short*)m_get_minimap( mapFileName.c_str(), miplevel );
 	if (!colors)
 		LSL_THROW( unitsync, "Get minimap failed");
-	return UnitsyncImage::FromMinimapData( colors, width, height );
+	UnitsyncImage img = UnitsyncImage::FromMinimapData( colors, width, height );
+	img.RescaleIfBigger();
+	return img;
 }
 
 UnitsyncImage UnitsyncLib::GetMetalmap( const std::string& mapFileName )
@@ -439,7 +441,9 @@ UnitsyncImage UnitsyncLib::GetMetalmap( const std::string& mapFileName )
 	retval = m_get_infomap(mapFileName.c_str(), "metal", grayscale, 1 /*byte per pixel*/);
 	if ( retval == 0 )
 		LSL_THROW( unitsync, "Get metalmap failed");
-	return UnitsyncImage::FromMetalmapData(grayscale, width, height);
+	UnitsyncImage img = UnitsyncImage::FromMetalmapData(grayscale, width, height);
+	img.RescaleIfBigger();
+	return img;
 }
 
 UnitsyncImage UnitsyncLib::GetHeightmap( const std::string& mapFileName )
@@ -453,7 +457,9 @@ UnitsyncImage UnitsyncLib::GetHeightmap( const std::string& mapFileName )
 	retval = m_get_infomap(mapFileName.c_str(), "height", grayscale, 2 /*byte per pixel*/);
 	if ( retval == 0 )
 		LSL_THROW( unitsync, "Get heightmap failed");
-	return UnitsyncImage::FromHeightmapData( grayscale, width, height );
+	UnitsyncImage img = UnitsyncImage::FromHeightmapData( grayscale, width, height );
+	img.RescaleIfBigger();
+	return img;
 }
 
 std::string UnitsyncLib::GetPrimaryModChecksum( int index )
@@ -1162,8 +1168,8 @@ float UnitsyncLib::GetKeyValue( const std::string& key, float defval )
 
 UnitsyncLib& susynclib()
 {
-    static LSL::Util::LineInfo<UnitsyncLib> m( AT );
-    static LSL::Util::GlobalObjectHolder<UnitsyncLib, LSL::Util::LineInfo<UnitsyncLib> > ss( m );
+	static LSL::Util::LineInfo<UnitsyncLib> m( AT );
+	static LSL::Util::GlobalObjectHolder<UnitsyncLib, LSL::Util::LineInfo<UnitsyncLib> > ss( m );
 	return ss;
 }
 

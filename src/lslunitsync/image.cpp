@@ -35,14 +35,13 @@ namespace cimg_library {
 
 template < class T>
 //! extends cimg to loading images from in-memory buffer
-void load_mem( LSL::Util::uninitialized_array<char>& data, size_t size,
-		const std::string& fn, CImg<T>& img) {
-  const char* filename = fn.c_str();
+void load_mem( LSL::Util::uninitialized_array<char>& data, size_t size, const std::string& fn, CImg<T>& img) {
+	const char* filename = fn.c_str();
 
-  std::FILE *file =  fmemopen( (void*)data, size, "r" );
+	std::FILE *file =  fmemopen( (void*)data, size, "r" );
 
-  const char *const ext = cimg::split_filename(filename);
-  cimg::exception_mode() = 0;
+	const char *const ext = cimg::split_filename(filename);
+	cimg::exception_mode() = 0;
 #ifdef cimg_load_plugin
 	cimg_load_plugin(filename);
 #endif
@@ -98,10 +97,10 @@ void load_mem( LSL::Util::uninitialized_array<char>& data, size_t size,
 	else if (!cimg::strcasecmp(ext,"cimg") ||
 			 !cimg::strcasecmp(ext,"cimgz") ||
 			 !*ext)  img.load_cimg(file);
-	else throw CImgIOException("CImg<%s>::load()",
-							   img.pixel_type());
+	else throw CImgIOException("CImg<%s>::load()", img.pixel_type());
 	cimg::exception_mode() = 0;
-  }
+
+}
 } // namespace cimg_library
 
 namespace LSL {
@@ -117,7 +116,7 @@ UnitsyncImage::UnitsyncImage( int width, int height )
 UnitsyncImage::UnitsyncImage(const std::string &filename)
 	: m_data_ptr( NewImagePtr(1,1) )
 {
-    Load(filename);
+	Load(filename);
 }
 
 UnitsyncImage::UnitsyncImage(PrivateImagePtrType ptr)
@@ -153,16 +152,12 @@ UnitsyncImage UnitsyncImage::FromVfsFileData( Util::uninitialized_array<char>& d
 	catch ( std::exception& e ) {
 		LslError( "couldn't load VFS file %s: %s", fn.c_str(), e.what() );
 	}
-	//	cache.InitAlpha();
-	//	if ( useWhiteAsTransparent )
-	//	{
-	//		for ( int x = 0; x < cache.GetWidth(); x++ )
-	//			for ( int y = 0; y < cache.GetHeight(); y++ )
-	//				if ( cache.GetBlue( x, y ) == 255 && cache.GetGreen( x, y ) == 255 && cache.GetRed( x, y ) == 255 )
-	//					cache.SetAlpha( x, y, 0 ); // set pixel to be transparent
-	//	}
 	PrivateImagePtrType ptr( img_p );
-	return UnitsyncImage( ptr );
+	UnitsyncImage img( ptr );
+	if ( useWhiteAsTransparent ) {
+		img.MakeTransparent();
+	}
+	return img;
 }
 
 UnitsyncImage::UnitsyncImage()
@@ -181,7 +176,6 @@ void UnitsyncImage::Load(const std::string &path) const
         m_data_ptr->load( path.c_str() );
     } catch ( cimg_library::CImgException& c ) {
         LslError("cimg load of %s failed: %s", path.c_str(), c.what());
-        throw c;
     }
 }
 
@@ -261,19 +255,59 @@ void UnitsyncImage::Rescale(const int new_width, const int new_height)
     m_data_ptr->resize( new_width, new_height, 1 /*z*/, 3 /*c*/, 5 /*interpolation type*/);
 }
 
+void UnitsyncImage::MakeTransparent(unsigned short r, unsigned short g, unsigned short b)
+{
+//FIXME: if pixel is white, make transparent
+/*
+	PrivateImageType& img = *m_data_ptr;
+	PrivateImageType tmp(img.width(), img.height(), 1, 1);
+	tmp = img;
+	cimg_forXY(tmp,x,y) {
+		if ((tmp(x,y,0,0) == r) && (tmp(x,y,0,1) == g) && (tmp(x,y,0,2) == b)) { //pixel is white, make transparent
+			tmp(x,y,0,3) = 255;
+		}
+	}
+	m_data_ptr(tmp);
+*/
+}
+
 int UnitsyncImage::GetWidth() const
 {
 	return m_data_ptr->width();
 }
 
+void UnitsyncImage::RescaleIfBigger(const int maxwidth, const int maxheight) {
+	if (!isValid()) return;
+
+	int height= GetHeight();
+	int width = GetWidth();
+	bool rescale=false;
+	if (height > maxheight) {
+		width = (float(maxheight) / height) * width;
+		height = maxheight;
+		rescale = true;
+	}
+	if (width > maxwidth) {
+		height = (float(maxwidth) / width) * height;
+		width = maxwidth;
+		rescale = true;
+	}
+	if (rescale) {
+		Rescale(width, height);
+	}
+}
+
 #ifdef HAVE_WX
 wxBitmap UnitsyncImage::wxbitmap() const
 {
-    return wxBitmap(this->wximage());
+	return wxBitmap(wximage());
 }
 
 wxImage UnitsyncImage::wximage () const
 {
+	if ((m_data_ptr == 0) || (m_data_ptr->width() <= 0) || (m_data_ptr->height() <= 0)) { //return empty image if m_data_ptr isn't initialized/valid
+		return wxImage(1,1);
+	}
     wxImage img(m_data_ptr->width(), m_data_ptr->height());
     const auto ptr = *m_data_ptr;
     cimg_forXY(ptr,x,y) {

@@ -5,4 +5,4 @@ before_script:
   - sudo apt-get install libboost-thread-dev libboost-system-dev libboost-filesystem-dev
   - cmake -DBUILD_TESTS=ON .
 script:
-  - make && make tests
+  - make && make check

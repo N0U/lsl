@@ -65,10 +65,8 @@ bool Unitsync::LoadUnitSyncLib( const std::string& unitsyncloc )
 	bool ret = _LoadUnitSyncLib( unitsyncloc );
 	if (ret)
 	{
-    m_cache_path = LSL::Util::config().GetCachePath().string();
+		m_cache_path = LSL::Util::config().GetCachePath().string();
 		PopulateArchiveList();
-    //this bit will be used to notify GUI listeners that they may need to update after usync reload
-//    SendGlobalEvent(GlobalEvents::OnUnitsyncReloaded).SendEvent( 0 );
 	}
 	return ret;
 }
@@ -155,7 +153,7 @@ void Unitsync::PopulateArchiveList()
 bool Unitsync::_LoadUnitSyncLib( const std::string& unitsyncloc )
 {
 	try {
-        susynclib().Load( unitsyncloc, LSL::Util::config().GetForcedSpringConfigFilePath().string() );
+		susynclib().Load( unitsyncloc, LSL::Util::config().GetForcedSpringConfigFilePath().string() );
 	} catch (...) {
 		return false;
 	}
@@ -650,7 +648,7 @@ UnitsyncImage Unitsync::_GetMapImage( const std::string& mapname, const std::str
 		img = UnitsyncImage( originalsizepath );
 	}
 
-	if (img.GetHeight() < 1 || img.GetWidth() < 1) { //image seems invalid, recreate
+	if (!img.isValid()) { //image seems invalid, recreate
 		try {
 		//convert and save
 		img = (susynclib().*loadMethod)( mapname );
@@ -1072,6 +1070,8 @@ void Unitsync::PostEvent( const std::string& evt )
 
 void Unitsync::_GetMapImageAsync( const std::string& mapname, UnitsyncImage (Unitsync::*loadMethod)(const std::string&) )
 {
+	if (mapname.empty())
+		return;
 	if (! m_cache_thread )
 	{
 		LslDebug( "cache thread not initialised -- %s", mapname.c_str() );
@@ -1089,6 +1089,8 @@ void Unitsync::GetMinimapAsync( const std::string& mapname )
 
 void Unitsync::GetMinimapAsync( const std::string& mapname, int width, int height )
 {
+	if (mapname.empty())
+		return;
 	if (! m_cache_thread )
 	{
 		LslError( "cache thread not initialised" );
@@ -1121,6 +1123,9 @@ void Unitsync::GetHeightmapAsync( const std::string& mapname, int /*width*/, int
 
 void Unitsync::GetMapExAsync( const std::string& mapname )
 {
+	if (mapname.empty())
+		return;
+
 	if (! m_cache_thread )
 	{
 		LslDebug( "cache thread not initialized %s", "GetMapExAsync" );
@@ -1155,13 +1160,6 @@ std::string Unitsync::GetNameForShortname( const std::string& shortname, const s
 	if ( it != m_shortname_to_name_map.end() )
 		return it->second;
 	return std::string();
-}
-
-void Unitsync::AddReloadEvent()
-{
-  //previously this inserted a command into aa  queue that was worked on in
-  //the main thread. direct reloading from any non-main thread would crash horribly
-  ReloadUnitSyncLib();
 }
 
 Unitsync& usync() {

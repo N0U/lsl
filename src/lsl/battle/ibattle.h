@@ -60,7 +60,7 @@ struct BattleOptions
 
 	int battleid;
 	Enum::BattleType battletype;
-	
+
 	/** \ingroup access restricitions @{ */
 	bool islocked;
 	bool ispassworded;
@@ -76,14 +76,14 @@ struct BattleOptions
 
 	std::string founder;
 
-	/** \ingroup connection settings @{ */	
+	/** \ingroup connection settings @{ */
 	Enum::NatType nattype;
 	unsigned int port;
 	std::string ip;
 	unsigned int externaludpsourceport;
 	unsigned int internaludpsourceport;
 	/** @} */
-	
+
 	unsigned int maxplayers;
 	unsigned int spectators;
 	std::string maphash;
@@ -354,7 +354,6 @@ private:
 	OptionsWrapperPtr m_opt_wrap;
 
 	bool m_ingame;
-	bool m_auto_unspec; // unspec as soon as there's a free slot
 
 	std::map<unsigned int,BattleStartRect> m_rects;
 

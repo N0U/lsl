@@ -142,9 +142,6 @@ public:
     virtual GameOptions GetModCustomizations( const std::string& modname );
     virtual GameOptions GetSkirmishOptions( const std::string& modname, const std::string& skirmish_name );
 
-//	virtual void OnReload( wxCommandEvent& event );
-	virtual void AddReloadEvent(  );
-
     StringVector FindFilesVFS( const std::string& pattern ) const;
 
   private:

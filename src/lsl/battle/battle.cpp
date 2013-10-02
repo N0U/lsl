@@ -141,13 +141,13 @@ void Battle::SaveMapDefaults()
     std::string mapname = LoadMap().name;
 	std::string startpostype = CustomBattleOptions()->getSingleValue( "startpostype", LSL::OptionsWrapper::EngineOption );
     sett().SetMapLastStartPosType( mapname, startpostype);
-    std::vector<Settings::SettStartBox> rects;
+    std::vector<LSL::Util::SettStartBox> rects;
     for( unsigned int i = 0; i <= GetLastRectIdx(); ++i )
     {
         BattleStartRect rect = GetStartRect( i );
         if ( rect.IsOk() )
         {
-            Settings::SettStartBox box;
+            LSL::Util::SettStartBox box;
             box.ally = rect.ally;
             box.topx = rect.left;
             box.topy = rect.top;
@@ -170,8 +170,8 @@ void Battle::LoadMapDefaults( const std::string& mapname )
 	}
 	SendHostInfo( Enum::HI_StartRects );
 
-    const std::vector<Settings::SettStartBox> savedrects = sett().GetMapLastRectPreset<std::vector<Settings::SettStartBox> >( mapname );
-    for ( std::vector<Settings::SettStartBox>::const_iterator itor = savedrects.begin(); itor != savedrects.end(); ++itor )
+    const std::vector<LSL::Util::SettStartBox> savedrects = sett().GetMapLastRectPreset( mapname );
+    for ( std::vector<LSL::Util::SettStartBox>::const_iterator itor = savedrects.begin(); itor != savedrects.end(); ++itor )
     {
         AddStartRect( itor->ally, itor->topx, itor->topy, itor->bottomx, itor->bottomy );
     }

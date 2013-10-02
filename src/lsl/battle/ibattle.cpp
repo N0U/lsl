@@ -57,7 +57,6 @@ IBattle::IBattle():
 	, m_previous_local_mod_name( std::string() )
     , m_opt_wrap( new OptionsWrapper() )
 	, m_ingame(false)
-	, m_auto_unspec(false)
 	, m_players_ready(0)
 	, m_players_sync(0)
 	, m_players_ok(0)
