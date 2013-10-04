@@ -252,7 +252,7 @@ int UnitsyncImage::GetHeight() const
 
 void UnitsyncImage::Rescale(const int new_width, const int new_height)
 {
-    m_data_ptr->resize( new_width, new_height, 1 /*z*/, 3 /*c*/, 5 /*interpolation type*/);
+    m_data_ptr->resize( new_width, new_height, 1 /*z*/, 3 /*c*/, 1 /*interpolation type*/);
 }
 
 void UnitsyncImage::MakeTransparent(unsigned short r, unsigned short g, unsigned short b)
