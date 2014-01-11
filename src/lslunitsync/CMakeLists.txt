@@ -6,6 +6,7 @@ SET(libUnitsyncSrc
 	"${CMAKE_CURRENT_SOURCE_DIR}/mmoptionmodel.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/optionswrapper.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/unitsync.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/springbundle.cpp"
 	)
 FILE( GLOB RECURSE libUnitsyncHeader "${CMAKE_CURRENT_SOURCE_DIR}/*.h" )
 

@@ -22,6 +22,8 @@ struct SpringMapInfo;
 	typedef ret (USYNC_CALLCONV *name)(__VA_ARGS__)
 
 FUNC(const char*, GetSpringVersionPtr);
+FUNC(const char*, GetSpringVersionPatchsetPtr);
+FUNC(bool, IsSpringReleaseVersionPtr);
 
 FUNC(int,InitPtr, bool, int);
 FUNC(void,UnInitPtr);

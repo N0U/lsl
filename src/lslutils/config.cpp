@@ -38,11 +38,6 @@ bf::path Config::GetCachePath() const
     return bf::path(STD_STRING(sett().GetCachePath()));
 }
 
-bf::path Config::GetForcedSpringConfigFilePath() const
-{
-    return bf::path(STD_STRING(sett().GetForcedSpringConfigFilePath()));
-}
-
 bf::path Config::GetCurrentUsedUnitSync() const
 {
     return bf::path(STD_STRING(sett().GetCurrentUsedUnitSync()));

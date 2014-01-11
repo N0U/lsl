@@ -128,7 +128,7 @@ explicit RefcountedPointer(RefcountedPointer<U> p){
         return *this;
     }
     void Dispose() {
-        if(!data) {
+        if(data == NULL) {
             ///error("Something wrong with RefcountedPointer.dispose");
             return;
         }

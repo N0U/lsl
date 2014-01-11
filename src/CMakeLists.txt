@@ -11,8 +11,20 @@ ENDIF ( EXISTS ${libSpringLobby_BINARY_DIR}/libSpringLobby_config.h  OR  EXISTS 
 INCLUDE_DIRECTORIES(${libSpringLobby_SOURCE_DIR}/lib)
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
+INCLUDE (CheckFunctionExists)
+
+SET(CMAKE_REQUIRED_INCLUDES stdio.h)
+CHECK_FUNCTION_EXISTS(fmemopen HAVE_FMEMOPEN)
+IF(HAVE_FMEMOPEN)
+	ADD_DEFINITIONS(-DHAVE_FMEMOPEN)
+ENDIF(HAVE_FMEMOPEN)
+
 add_subdirectory( lslutils )
 if (LSLSERVER)
 	add_subdirectory( lsl )
 endif()
 add_subdirectory( lslunitsync )
+option(LSL_EXTRACT "Compile lslextract, a tool to extract metadata from spring's archive files" OFF)
+if (LSL_EXTRACT)
+	add_subdirectory( lslextract )
+endif()

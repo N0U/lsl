@@ -4,10 +4,6 @@
 
 #include <stdexcept>
 #include <cmath>
-#include <boost/extension/shared_library.hpp>
-#include <boost/foreach.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/typeof/typeof.hpp>
 
 #include <lslutils/logging.h>
 #include <lslutils/misc.h>
@@ -51,25 +47,17 @@ UnitsyncLib::~UnitsyncLib()
   Unload();
 }
 
-void UnitsyncLib::Load( const std::string& path, const std::string& forceConfigFilePath )
+void UnitsyncLib::Load( const std::string& path)
 {
 	LOCK_UNITSYNC;
-
 	_Load( path );
-
-	if ( !forceConfigFilePath.empty() )
-	{
-		if ( m_set_spring_config_file_path )
-		{
-			m_set_spring_config_file_path( forceConfigFilePath.c_str() );
-		}
-	}
 	_Init();
 }
 
 
 void UnitsyncLib::_Load( const std::string& path )
 {
+	assert(!path.empty());
 	if ( _IsLoaded() && path == m_path ) return;
 
 	_Unload();
@@ -106,7 +94,8 @@ void UnitsyncLib::_Init()
 	{
 		m_current_mod = std::string();
 		m_init( true, 1 );
-		BOOST_FOREACH( const std::string error, GetUnitsyncErrors() ) {
+		auto errors = GetUnitsyncErrors();
+		for(const std::string error: errors ) {
 			LslError( "%s", error.c_str() );
 		}
 	}
@@ -243,36 +232,6 @@ int UnitsyncLib::GetModIndex( const std::string& name )
 	return GetPrimaryModIndex( name );
 }
 
-std::map<std::string, std::string> UnitsyncLib::GetSpringVersionList(const std::map<std::string, std::string>& usync_paths)
-{
-	LOCK_UNITSYNC;
-	std::map<std::string, std::string> ret;
-
-	for (std::map<std::string, std::string>::const_iterator it = usync_paths.begin(); it != usync_paths.end(); ++it)
-	{
-		std::string path = it->second;
-		try
-		{
-
-			if ( !Util::FileExists( path ) )
-			{
-				LSL_THROW( file_not_found, path);
-			}
-			void* temphandle = _LoadLibrary(path);
-
-			std::string functionname = "GetSpringVersion";
-			GetSpringVersionPtr getspringversion =(GetSpringVersionPtr)GetLibFuncPtr( temphandle, functionname);
-			if( !getspringversion )
-				LSL_THROW( unitsync, "getspringversion: function not found");
-			std::string version = getspringversion();
-			LslDebug( "Found spring version: %s", version.c_str() );
-			ret[it->first] = version;
-		}
-		catch(...){}
-	}
-	return ret;
-}
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //  -- The UnitSync functions --
@@ -282,7 +241,12 @@ std::map<std::string, std::string> UnitsyncLib::GetSpringVersionList(const std::
 std::string UnitsyncLib::GetSpringVersion()
 {
 	InitLib( m_get_spring_version );
-	return m_get_spring_version();
+	std::string version = m_get_spring_version();
+	if (m_is_spring_release_version && m_get_spring_version_patchset && m_is_spring_release_version()) {
+		version += ".";
+		version += m_get_spring_version_patchset();
+	}
+	return version;
 }
 
 std::string UnitsyncLib::GetSpringDataDir()

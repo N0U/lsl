@@ -3,6 +3,7 @@
 
 #include <boost/filesystem.hpp>
 #include <fstream>
+#include <cmath>
 
 namespace LSL {
 namespace Util {

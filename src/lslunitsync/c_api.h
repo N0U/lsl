@@ -94,11 +94,10 @@ public:
 	/**
 	 * Loads the unitsync library from path.
 	 * @param path path to the unitsync lib.
-	 * @param ForceConfigFilePath if set forces unitsync to use pointed config file, if empty leaves to spring's default
 	 * @see Unload().
 	 * @note Throws runtime_error if load failed.
 	 */
-	void Load( const std::string& path, const std::string& ForceConfigFilePath );
+	void Load( const std::string& path);
 
 	/**
 	 * Unload the unitsync library. Does nothing if not loaded.
@@ -129,16 +128,6 @@ public:
 	int GetModIndex( const std::string& name );
 
 	std::string GetSpringVersion();
-
-	/**
-	 * Loads unitsync from any number of paths in succession,
-	 * queries the Spring versions supported by these unitsyncs,
-	 * and returns those.
-	 *
-	 * This is done by a single function because this "transaction"
-	 * needs to hold the unitsync lock the entire time.
-	 */
-	std::map<std::string, std::string> GetSpringVersionList(const std::map<std::string, std::string>& usync_paths);
 
 	std::string GetSpringDataDir();
 	int GetSpringDataDirCount();
@@ -436,6 +425,8 @@ private:
 	CloseFileVFSPtr m_close_file_vfs;
 
 	GetSpringVersionPtr m_get_spring_version;
+	GetSpringVersionPatchsetPtr m_get_spring_version_patchset;
+	IsSpringReleaseVersionPtr m_is_spring_release_version;
 
 	ProcessUnitsPtr m_process_units;
 	AddArchivePtr m_add_archive;

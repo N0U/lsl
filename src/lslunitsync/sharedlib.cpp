@@ -1,9 +1,14 @@
 #ifndef LSL_FUNCTION_PTR_H
 #define LSL_FUNCTION_PTR_H
 
-#include <boost/extension/shared_library.hpp>
 #include <string>
 #include <lslutils/debug.h>
+#include <boost/filesystem/path.hpp>
+#ifdef WIN32
+	#include <windows.h>
+#else
+	#include <dlfcn.h>
+#endif
 
 namespace LSL {
 
@@ -21,7 +26,10 @@ void _FreeLibrary(void* handle)
 void* _LoadLibrary(const std::string& libpath)
 {
 	void * res =NULL;
+	boost::filesystem::path dir = libpath;
 #ifdef WIN32
+	SetDllDirectory(NULL);
+	SetDllDirectory(dir.parent_path().string().c_str());
 	res = LoadLibrary(libpath.c_str());
 	if (res == NULL) {
 		const int err = GetLastError();

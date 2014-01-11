@@ -16,6 +16,7 @@
 
 #include "c_api.h"
 #include "image.h"
+#include "springbundle.h"
 
 #include <lslutils/config.h>
 #include <lslutils/debug.h>
@@ -30,13 +31,21 @@
 namespace LSL {
 
 Unitsync::Unitsync():
-	m_cache_thread( NULL ),
+	m_cache_thread( new WorkerThread ),
 	m_map_image_cache( 3, "m_map_image_cache" ),         // may take about 3M per image ( 1024x1024 24 bpp minimap )
 	m_tiny_minimap_cache( 200, "m_tiny_minimap_cache" ), // takes at most 30k per image (   100x100 24 bpp minimap )
 	m_mapinfo_cache( 1000000, "m_mapinfo_cache" ),       // this one is just misused as thread safe std::map ...
 	m_sides_cache( 200, "m_sides_cache" )                // another misuse
-{}
+{
+}
 
+
+enum ASYNC_EVENTS {
+	ASYNC_MAP_IMAGE_EVT = 1,
+	ASYNC_MAP_IMAGE_SCALED_EVT,
+	ASYNC_MAP_EX_EVT,
+	ASYNC_UNITSYNC_LOADED_EVT,
+};
 
 Unitsync::~Unitsync()
 {
@@ -59,9 +68,6 @@ bool CompareStringNoCase(const std::string& first, const std::string& second)
 bool Unitsync::LoadUnitSyncLib( const std::string& unitsyncloc )
 {
 	LOCK_UNITSYNC;
-	if (m_cache_thread == NULL) {
-		m_cache_thread = new WorkerThread();
-	}
 	bool ret = _LoadUnitSyncLib( unitsyncloc );
 	if (ret)
 	{
@@ -149,11 +155,32 @@ void Unitsync::PopulateArchiveList()
 }
 
 
+std::map<std::string, SpringBundle> Unitsync::GetSpringVersionList(const std::list<SpringBundle>& unitsync_paths)
+{
+	LOCK_UNITSYNC;
+	std::map<std::string, SpringBundle> ret;
+
+	for (const auto bundle: unitsync_paths)
+	{
+		try
+		{
+			SpringBundle tmp(bundle);
+			tmp.AutoComplete();
+			if (tmp.IsValid()) {
+				LslDebug( "Found spring version: %s %s %s", tmp.version.c_str(), tmp.spring.c_str(), tmp.unitsync.c_str());
+				ret[tmp.version] = tmp;
+			}
+		}
+		catch(...){}
+	}
+	return ret;
+}
+
 
 bool Unitsync::_LoadUnitSyncLib( const std::string& unitsyncloc )
 {
 	try {
-		susynclib().Load( unitsyncloc, LSL::Util::config().GetForcedSpringConfigFilePath().string() );
+		susynclib().Load( unitsyncloc);
 	} catch (...) {
 		return false;
 	}
@@ -746,7 +773,13 @@ StringVector Unitsync::FindFilesVFS( const std::string& pattern ) const
 
 bool Unitsync::ReloadUnitSyncLib()
 {
-    return LoadUnitSyncLib( LSL::Util::config().GetCurrentUsedUnitSync().string() );
+	//FIXME: use async call
+	//LoadUnitSyncLibAsync(LSL::Util::config().GetCurrentUsedUnitSync().string());
+	const std::string path = LSL::Util::config().GetCurrentUsedUnitSync().string();
+	if (path.empty())
+		return false;
+	LoadUnitSyncLib(path);
+	return true;
 }
 
 
@@ -757,8 +790,8 @@ void Unitsync::SetSpringDataPath( const std::string& path )
 
 bool Unitsync::GetSpringDataPath(std::string& path)
 {
-  path = susynclib().GetSpringDataDir();
-  return true;
+	path = susynclib().GetSpringDataDir();
+	return !path.empty();
 }
 
 std::string Unitsync::GetFileCachePath( const std::string& name, const std::string& hash, bool IsMod )
@@ -953,7 +986,6 @@ public:
 protected:
 	Unitsync* m_usync;
 	std::string m_mapname;
-	int m_evtHandlerId;
 	int m_evtId;
 
 	void PostEvent()
@@ -966,7 +998,6 @@ protected:
 	GetMapImageAsyncResult( Unitsync* usync, const std::string& mapname, int evtId ):
 		m_usync(usync),
 		m_mapname(mapname.c_str()),
-		m_evtHandlerId(0),
 		m_evtId(evtId)
 	{}
 };
@@ -982,7 +1013,7 @@ public:
 	LoadMethodPtr m_loadMethod;
 
 	GetMapImageAsyncWorkItem( Unitsync* usync, const std::string& mapname, LoadMethodPtr loadMethod )
-		: GetMapImageAsyncResult( usync, mapname, 1 ), m_loadMethod(loadMethod) {}
+		: GetMapImageAsyncResult( usync, mapname, ASYNC_MAP_IMAGE_EVT), m_loadMethod(loadMethod) {}
 };
 
 class GetScaledMapImageAsyncWorkItem : public GetMapImageAsyncResult
@@ -998,7 +1029,7 @@ public:
 	ScaledLoadMethodPtr m_loadMethod;
 
 	GetScaledMapImageAsyncWorkItem( Unitsync* usync, const std::string& mapname, int w, int h, ScaledLoadMethodPtr loadMethod )
-		: GetMapImageAsyncResult( usync, mapname, 2 ), m_width(w), m_height(h), m_loadMethod(loadMethod) {}
+		: GetMapImageAsyncResult( usync, mapname, ASYNC_MAP_IMAGE_SCALED_EVT), m_width(w), m_height(h), m_loadMethod(loadMethod) {}
 };
 
 class GetMapExAsyncWorkItem : public GetMapImageAsyncResult
@@ -1010,9 +1041,42 @@ public:
 	}
 
 	GetMapExAsyncWorkItem( Unitsync* usync, const std::string& mapname )
-		: GetMapImageAsyncResult( usync, mapname, 3 ) {}
+		: GetMapImageAsyncResult( usync, mapname, ASYNC_MAP_EX_EVT ) {}
 };
 }
+
+
+class LoadUnitSyncLibAsyncWorkItem: public WorkItem
+{
+public:
+	void Run()
+	{
+		try
+		{
+			m_usync->LoadUnitSyncLib(m_unitsyncloc);
+		}
+		catch (...)
+		{
+			// Event without mapname means some async job failed.
+			// This is sufficient for now, we just need symmetry between
+			// number of initiated async jobs and number of finished/failed
+			// async jobs.
+
+		}
+		m_usync->PostEvent( "" );
+	}
+
+private:
+	Unitsync* m_usync;
+	std::string m_unitsyncloc;
+	int m_evtId;
+public:
+	LoadUnitSyncLibAsyncWorkItem( Unitsync* usync, const std::string& unitsyncLoc):
+		m_usync(usync),
+		m_unitsyncloc(unitsyncLoc.c_str()),
+		m_evtId(ASYNC_UNITSYNC_LOADED_EVT)
+	{}
+};
 
 
 void Unitsync::PrefetchMap( const std::string& mapname )
@@ -1168,5 +1232,9 @@ Unitsync& usync() {
 	return m_sync;
 }
 
+void Unitsync::LoadUnitSyncLibAsync(const std::string& filename) {
+	LoadUnitSyncLibAsyncWorkItem* work = new LoadUnitSyncLibAsyncWorkItem( this, filename);
+	m_cache_thread->DoWork( work, 500 );
+}
 
 } // namespace LSL

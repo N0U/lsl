@@ -14,7 +14,7 @@
 #include <lslutils/logging.h>
 
 
-#ifdef WIN32
+#if !defined(HAVE_FMEMOPEN)
 #include <boost/filesystem.hpp>
 //! we need our own fmemopen implementation since its posix only
 FILE* fmemopen(void* data, size_t size, const char* mode)
@@ -38,7 +38,7 @@ template < class T>
 void load_mem( LSL::Util::uninitialized_array<char>& data, size_t size, const std::string& fn, CImg<T>& img) {
 	const char* filename = fn.c_str();
 
-	std::FILE *file =  fmemopen( (void*)data, size, "r" );
+	std::FILE *file =  fmemopen( (void*)data, size, "rb" );
 
 	const char *const ext = cimg::split_filename(filename);
 	cimg::exception_mode() = 0;
@@ -105,11 +105,8 @@ void load_mem( LSL::Util::uninitialized_array<char>& data, size_t size, const st
 
 namespace LSL {
 
-#define NEW_PTR UnitsyncImage::NewImagePtr( width, height )
-#define DEFINE_PTR(name) PrivateImageType* name = NEW_PTR
-
 UnitsyncImage::UnitsyncImage( int width, int height )
-	: m_data_ptr( NEW_PTR )
+	: m_data_ptr( UnitsyncImage::NewImagePtr(width, height) )
 {
 }
 
@@ -131,7 +128,7 @@ UnitsyncImage::PrivateImageType* UnitsyncImage::NewImagePtr(int width, int heigh
 
 UnitsyncImage UnitsyncImage::FromMetalmapData(const Util::uninitialized_array<unsigned char>& data, int width, int height)
 {
-	DEFINE_PTR(img_p);
+	PrivateImageType* img_p = UnitsyncImage::NewImagePtr(width, height);
 	PrivateImageType& img = *img_p;
 	cimg_forXY(img,x,y) {
 		img(x,y,0,0) = 0;
@@ -181,7 +178,7 @@ void UnitsyncImage::Load(const std::string &path) const
 
 UnitsyncImage UnitsyncImage::FromMinimapData(const UnitsyncImage::RawDataType *colors, int width, int height)
 {
-	DEFINE_PTR(img_p);
+	PrivateImageType* img_p = UnitsyncImage::NewImagePtr(width, height);
 	PrivateImageType& img = *img_p;
 	cimg_forXY(img,x,y) {
 		int at = x+(y*width);
@@ -195,7 +192,7 @@ UnitsyncImage UnitsyncImage::FromMinimapData(const UnitsyncImage::RawDataType *c
 
 UnitsyncImage UnitsyncImage::FromHeightmapData(const Util::uninitialized_array<unsigned short>& grayscale, int width, int height)
 {
-	DEFINE_PTR(img_p);
+	PrivateImageType* img_p = UnitsyncImage::NewImagePtr(width, height);
 	PrivateImageType& img = *img_p;
 
 	// the height is mapped to this "palette" of colors
@@ -220,8 +217,10 @@ UnitsyncImage UnitsyncImage::FromHeightmapData(const Util::uninitialized_array<u
 	}
 
 	// prevent division by zero -- heightmap wouldn't contain any information anyway
-	if (min == max)
+	if (min == max) {
+		delete img_p;
 		return UnitsyncImage( 1, 1 );
+	}
 
 	// perform the mapping From 16 bit grayscale to 24 bit true color
 	const double range = max - min + 1;

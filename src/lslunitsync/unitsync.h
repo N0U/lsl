@@ -21,6 +21,7 @@ struct GameOptions;
 struct CachedMapInfo;
 struct SpringMapInfo;
 class UnitsyncLib;
+class SpringBundle;
 
 #ifdef HAVE_WX
 extern const wxEventType UnitSyncAsyncOperationCompletedEvt;
@@ -82,6 +83,17 @@ public:
 
 	bool IsLoaded() const;
 
+	/**
+	 * Loads unitsync from any number of paths in succession,
+	 * queries the Spring versions supported by these unitsyncs,
+	 * and returns those.
+	 *
+	 * This is done by a single function because this "transaction"
+	 * needs to hold the unitsync lock the entire time.
+	 */
+	std::map<std::string, SpringBundle> GetSpringVersionList(const std::list<SpringBundle>& unitsync_paths);
+
+
 	std::string GetSpringVersion() const;
     //! function wich checks if the version returned from unitsync matches a table of supported feature
 	bool VersionSupports( GameFeature feature ) const;
@@ -129,6 +141,7 @@ public:
     void UnregisterEvtHandler(boost::signals2::connection& conn );
 	void PostEvent(const std::string& evt ); // helper for WorkItems
 
+	void LoadUnitSyncLibAsync(const std::string& filename);
 	void GetMinimapAsync( const std::string& mapname );
 	void GetMinimapAsync( const std::string& mapname, int width, int height );
 	void GetMetalmapAsync( const std::string& mapname );
