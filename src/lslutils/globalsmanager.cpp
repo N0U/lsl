@@ -44,6 +44,7 @@ void DestroyGlobals()
 	{
 		mgr->DestroyAll();
 		delete mgr;
+		mgr = NULL;
 	}
 	destroyed = true;
 }

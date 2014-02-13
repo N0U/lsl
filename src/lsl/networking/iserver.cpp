@@ -9,7 +9,6 @@
 
 #include <boost/typeof/typeof.hpp>
 #include <boost/algorithm/string.hpp>
-#include <boost/foreach.hpp>
 
 
 namespace LSL {
@@ -385,7 +384,7 @@ void Server::UdpPingAllClients()
 	std::sort(ordered_users.begin(),ordered_users.end());
 
     int i = -1;
-    BOOST_FOREACH( const ConstCommonUserPtr user, ordered_users )
+	for( const ConstCommonUserPtr user: ordered_users )
 	{
         i++;
 		if (!user)
@@ -623,7 +622,7 @@ void Server::OnBattleDisableUnit( const IBattlePtr battle, const std::string& un
 void Server::OnBattleEnableUnit( const IBattlePtr battle, const StringVector& unitnames )
 {
 	if (!battle) return;
-	BOOST_FOREACH( const std::string unit, unitnames )
+	for( const std::string unit: unitnames )
 	{
 		battle->UnrestrictUnit( unit );
 	}

@@ -137,6 +137,7 @@ void WorkItemQueue::CleanupWorkItem( WorkItem* item )
 	if ( item->m_toBeDeleted ) {
 		try {
 			delete item;
+			item = NULL;
 		}
         catch ( std::exception& e ) {
 			// idem, eat exceptions from destructor

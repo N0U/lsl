@@ -203,7 +203,10 @@ template<class T> class SingleInstance{
   T *data;
   public:
   SingleInstance():data(NULL){}
-  ~SingleInstance(){delete data;}
+  ~SingleInstance(){
+		delete data;
+		data = NULL;
+	}
   T *Get(){
     if(!data)data=new T;
     return data;

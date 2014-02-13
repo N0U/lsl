@@ -5,59 +5,58 @@
 #include "misc.h"
 #include "globalsmanager.h"
 
-//SL includes -- bad
-#if HAVE_SPRINGLOBBY
-    #include "settings.h"
-    #include "utils/conversion.h"
-#else
-#include "mock_settings.h"
-#endif
-
 namespace bf = boost::filesystem;
 
 namespace LSL {
 namespace Util {
-Config::Config()
+
+// FIXME chose better defaults
+Config::Config():
+	Cache(bf::path("cache")),
+	CurrentUsedUnitSync(bf::path("unitsync")),
+	CurrentUsedSpringBinary(bf::path("spring"))
 {
 }
 
-Config& config() {
-    static LSL::Util::LineInfo<Config> m( AT );
-    static LSL::Util::GlobalObjectHolder<Config, LSL::Util::LineInfo<Config> > m_sett( m );
-    return m_sett;
+Config& config()
+{
+	static LSL::Util::LineInfo<Config> m( AT );
+	static LSL::Util::GlobalObjectHolder<Config, LSL::Util::LineInfo<Config> > m_sett( m );
+	return m_sett;
 }
 
 lslColor Config::GetBattleLastColor() const
 {
-//    auto
-    return lslColor();
+	//    auto
+	return lslColor();
 }
 
 bf::path Config::GetCachePath() const
 {
-    return bf::path(STD_STRING(sett().GetCachePath()));
+	return Cache;
 }
 
 bf::path Config::GetCurrentUsedUnitSync() const
 {
-    return bf::path(STD_STRING(sett().GetCurrentUsedUnitSync()));
+	return CurrentUsedUnitSync;
 }
 
-bf::path Config::GetCurrentUsedDataDir() const
-{
-    return bf::path(STD_STRING(sett().GetCurrentUsedDataDir()));
-}
 
 bf::path Config::GetCurrentUsedSpringBinary() const
 {
-    return bf::path(STD_STRING(sett().GetCurrentUsedSpringBinary()));
+	return CurrentUsedSpringBinary;
 }
 
-bf::path Config::GetCurrentUsedSpringConfigFilePath() const
+void Config::ConfigurePaths(
+	boost::filesystem::path Cache,
+	boost::filesystem::path CurrentUsedUnitSync,
+	boost::filesystem::path CurrentUsedSpringBinary
+)
 {
-    return bf::path(STD_STRING(sett().GetCurrentUsedSpringConfigFilePath()));
+	this->Cache = Cache;
+	this->CurrentUsedUnitSync = CurrentUsedUnitSync;
+	this->CurrentUsedSpringBinary = CurrentUsedSpringBinary;
 }
-
 
 } // namespace Util
 }// namespace LSL {

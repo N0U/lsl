@@ -35,7 +35,6 @@
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
 #include <boost/algorithm/string.hpp>
-#include <boost/foreach.hpp>
 
 namespace LSL {
 
@@ -329,7 +328,7 @@ std::string Spring::WriteScriptTxt( const IBattlePtr battle ) const
     {
         std::set<int> parsedteams;
         unsigned int NumTeams = 0;
-        BOOST_FOREACH( const ConstCommonUserPtr usr, battle->Users() )
+        for( const ConstCommonUserPtr usr: battle->Users() )
         {
             const UserBattleStatus& status = usr->BattleStatus();
             if ( status.spectator )
@@ -414,7 +413,7 @@ std::string Spring::WriteScriptTxt( const IBattlePtr battle ) const
     srand ( time(NULL) );
     int i = 0;
     const unsigned int NumUsers = battle->Users().size();
-    BOOST_FOREACH( const ConstCommonUserPtr user, battle->Users() )
+    for( const ConstCommonUserPtr user: battle->Users() )
     {
         const UserBattleStatus& status = user->BattleStatus();
         if ( !status.spectator )
@@ -457,7 +456,7 @@ std::string Spring::WriteScriptTxt( const IBattlePtr battle ) const
     if ( usync().VersionSupports( LSL::USYNC_GetSkirmishAI ) )
     {
         unsigned int i = 0;
-        BOOST_FOREACH( const ConstCommonUserPtr user, battle->Users() )
+        for( const ConstCommonUserPtr user: battle->Users() )
         {
             const UserBattleStatus& status = user->BattleStatus();
             if ( !status.IsBot() ) continue;
@@ -489,7 +488,7 @@ std::string Spring::WriteScriptTxt( const IBattlePtr battle ) const
 
     std::set<int> parsedteams;
     StringVector sides = usync().GetSides( battle->GetHostModName() );
-    BOOST_FOREACH( const ConstCommonUserPtr usr, battle->Users() )
+    for( const ConstCommonUserPtr usr: battle->Users() )
     {
         const UserBattleStatus& status = usr->BattleStatus();
         if ( status.spectator ) continue;

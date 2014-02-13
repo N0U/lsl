@@ -25,38 +25,55 @@ struct SettStartBox
 
 class Config
 {
-    Config();
+	Config();
+
+private:
+	boost::filesystem::path Cache;
+	boost::filesystem::path CurrentUsedUnitSync;
+	boost::filesystem::path CurrentUsedSpringBinary;
 
 public:
-    boost::filesystem::path GetCachePath() const;
-    boost::filesystem::path GetForcedSpringConfigFilePath() const;
-    boost::filesystem::path GetCurrentUsedUnitSync() const;
-    boost::filesystem::path GetCurrentUsedDataDir() const;
-    boost::filesystem::path GetCurrentUsedSpringBinary() const;
-    boost::filesystem::path GetCurrentUsedSpringConfigFilePath() const;
-    STR_DUMMY( GetMyInternalUdpSourcePort )
-    INT_DUMMY( GetClientPort )
+	boost::filesystem::path GetCachePath() const;
+	boost::filesystem::path GetCurrentUsedUnitSync() const;
+	boost::filesystem::path GetCurrentUsedSpringBinary() const;
+	void ConfigurePaths(
+		boost::filesystem::path Cache,
+		boost::filesystem::path CurrentUsedUnitSync,
+		boost::filesystem::path CurrentUsedSpringBinary
+	);
+	STR_DUMMY( GetMyInternalUdpSourcePort )
+	INT_DUMMY( GetClientPort )
 
-    StringVector GetPresetList();
-    StringMap GetHostingPreset( const std::string&, size_t );
-    void SetHostingPreset( const std::string&, size_t, const StringMap& );
-    lslColor GetBattleLastColor() const;
-    int GetBattleLastSideSel( const std::string& /*modname*/ ) const { return 0; }
-    void SaveSettings();
-    void DeletePreset( const std::string& /*modname*/ );
+	StringVector GetPresetList();
+	StringMap GetHostingPreset( const std::string&, size_t );
+	void SetHostingPreset( const std::string&, size_t, const StringMap& );
+	lslColor GetBattleLastColor() const;
+	int GetBattleLastSideSel( const std::string& /*modname*/ ) const {
+		return 0;
+	}
+	void SaveSettings();
+	void DeletePreset( const std::string& /*modname*/ );
 
-    void SetMapLastStartPosType( const std::string& , const std::string&  ) {};
-    std::string GetMapLastStartPosType( const std::string&) const { return "";}
+	void SetMapLastStartPosType( const std::string& , const std::string&  ) {};
+	std::string GetMapLastStartPosType( const std::string&) const {
+		return "";
+	}
 
-    template < class T >
-    void SetMapLastRectPreset( const std::string&, const T&) {}
-    template < class T > T GetMapLastRectPreset( const std::string& ) { return T(); }
+	template < class T >
+	void SetMapLastRectPreset( const std::string&, const T&) {}
+	template < class T > T GetMapLastRectPreset( const std::string& ) {
+		return T();
+	}
 
-    bool GetBattleLastAutoAnnounceDescription() const { return false; }
-    int GetBattleLastAutoSpectTime() const { return 0; }
+	bool GetBattleLastAutoAnnounceDescription() const {
+		return false;
+	}
+	int GetBattleLastAutoSpectTime() const {
+		return 0;
+	}
 
-    template <class PB, class I >
-    friend class GlobalObjectHolder;
+	template <class PB, class I >
+	friend class GlobalObjectHolder;
 
 };
 

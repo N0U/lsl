@@ -1,7 +1,6 @@
 #include "tasserver.h"
 
 #include <boost/algorithm/string.hpp>
-#include <boost/foreach.hpp>
 #include <lslunitsync/optionswrapper.h>
 
 #include <lslutils/base64.h>
@@ -792,7 +791,7 @@ void ServerImpl::OnSetBattleOption( std::string key, const std::string& value )
             int team = Util::FromString<int>( Util::BeforeFirst(key,"/").substr( 4, std::string::npos ) );
             if ( key.find( "startposx" ) != std::string::npos )
 			{
-                BOOST_FOREACH( const CommonUserPtr player, battle->Users() )
+			for ( const CommonUserPtr player: battle->Users() )
 				{
                     UserBattleStatus& status = player->BattleStatus();
 					if ( status.team == team )
@@ -804,7 +803,7 @@ void ServerImpl::OnSetBattleOption( std::string key, const std::string& value )
 			 }
              else if ( key.find( "startposy" ) != std::string::npos )
 			 {
-                BOOST_FOREACH( const CommonUserPtr player, battle->Users() )
+			for( const CommonUserPtr player: battle->Users() )
 				{
                     UserBattleStatus& status = player->BattleStatus();
 					if ( status.team == team )
@@ -824,7 +823,7 @@ void ServerImpl::OnSetBattleInfo( std::string infos )
 {
     IBattlePtr battle = m_current_battle;
 	if (!battle) return;
-    BOOST_FOREACH( const std::string command,
+	for( const std::string command:
                    Util::StringTokenize( infos, "\t", boost::algorithm::token_compress_on ) )
 	{
         const std::string key = boost::algorithm::to_lower_copy( Util::BeforeFirst( command,"=" ) );
@@ -845,7 +844,7 @@ void ServerImpl::OnBattleDisableUnits( const std::string& unitlist )
     IBattlePtr battle = m_current_battle;
 	if (!battle) return;
     const StringVector units = Util::StringTokenize( unitlist, " " );
-    BOOST_FOREACH( const std::string unit, units )
+	for(const std::string unit: units )
 	{
         m_iface->OnBattleDisableUnit( battle, unit, 0 );
 	}
@@ -899,7 +898,7 @@ void ServerImpl::OnChannelJoinUserList( const std::string& channel_name, const s
     ChannelPtr channel = m_channels.Get( "#" + channel_name );
 	if(!channel) return;
     UserVector users;
-    BOOST_FOREACH( const std::string nick, Util::StringTokenize(usernames," ") )
+	for( const std::string nick: Util::StringTokenize(usernames," ") )
     {
         UserPtr user = m_users.FindByNick( nick );
 		if(!user) continue;

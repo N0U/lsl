@@ -19,7 +19,6 @@
 #include "tdfcontainer.h"
 
 #include <algorithm>
-#include <boost/foreach.hpp>
 #include <boost/date_time/posix_time/posix_time_types.hpp>
 
 #define ASSERT_EXCEPTION(cond,msg) do { if (!(cond)) { LSL_THROW( battle, msg ); } } while (0)
@@ -942,7 +941,7 @@ bool IBattle::LoadOptionsPreset( const std::string& name )
 
             m_restricted_units.clear();
             const StringVector infos = Util::StringTokenize( options["restrictions"], "\t" );
-			BOOST_FOREACH( const std::string unitinfo, infos )
+			for( const std::string unitinfo: infos )
 			{
 				RestrictUnit( Util::BeforeLast(unitinfo,"="),
 						Util::FromString<long>( Util::AfterLast(unitinfo,"=") ) );

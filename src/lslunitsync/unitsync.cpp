@@ -9,7 +9,6 @@
 #include <set>
 #include <fstream>
 #include <boost/algorithm/string.hpp>
-#include <boost/foreach.hpp>
 #include <boost/format.hpp>
 #include <boost/filesystem.hpp>
 #include <iterator>
@@ -50,6 +49,7 @@ enum ASYNC_EVENTS {
 Unitsync::~Unitsync()
 {
 	delete m_cache_thread;
+	m_cache_thread = NULL;
 }
 
 bool CompareStringNoCase(const std::string& first, const std::string& second)
@@ -159,6 +159,7 @@ std::map<std::string, SpringBundle> Unitsync::GetSpringVersionList(const std::li
 {
 	LOCK_UNITSYNC;
 	std::map<std::string, SpringBundle> ret;
+	std::map<std::string, std::string> uniq;
 
 	for (const auto bundle: unitsync_paths)
 	{
@@ -166,9 +167,12 @@ std::map<std::string, SpringBundle> Unitsync::GetSpringVersionList(const std::li
 		{
 			SpringBundle tmp(bundle);
 			tmp.AutoComplete();
+			if (uniq.find(tmp.unitsync) != uniq.end()) //don't check/add the same unitsync twice
+				continue;
 			if (tmp.IsValid()) {
 				LslDebug( "Found spring version: %s %s %s", tmp.version.c_str(), tmp.spring.c_str(), tmp.unitsync.c_str());
 				ret[tmp.version] = tmp;
+				uniq[tmp.unitsync] = tmp.version;
 			}
 		}
 		catch(...){}
@@ -721,7 +725,7 @@ MapInfo Unitsync::_GetMapInfoEx( const std::string& mapname )
 			info.width = Util::FromString<long>( cache[7] );
 			info.height = Util::FromString<long>( cache[8] );
 			const StringVector posinfo = Util::StringTokenize( cache[9], " ");
-			BOOST_FOREACH( const std::string pos, posinfo )
+			for( const std::string pos: posinfo )
 			{
 				StartPos position;
 				position.x = Util::FromString<long>( Util::BeforeFirst( pos,  "-" ) );
@@ -755,7 +759,7 @@ MapInfo Unitsync::_GetMapInfoEx( const std::string& mapname )
 			cache.push_back( postring );
 
 			const StringVector descrtokens = Util::StringTokenize( info.description, "\n" );
-			BOOST_FOREACH( const std::string descrtoken, descrtokens ) {
+			for( const std::string descrtoken: descrtokens ) {
 				cache.push_back( descrtoken );
 			}
 			SetCacheFile( GetFileCachePath( mapname, m_maps_unchained_hash[mapname], false ) + ".infoex", cache );
@@ -833,7 +837,7 @@ void Unitsync::SetCacheFile( const std::string& path, const StringVector& data )
 {
 	std::ofstream file( path.c_str(), std::ios::trunc );
 	ASSERT_EXCEPTION( file.good() , (boost::format( "cache file( %s ) not found" ) % path).str() );
-	BOOST_FOREACH( const std::string line, data )
+	for( const std::string line: data )
 	{
 		file << line << std::endl;
 	}
